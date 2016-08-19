@@ -1,191 +1,191 @@
-﻿<Language Name="English" IsDefault="false" IsRightToLeft="false" LanguageCulture="en-US" FlagImageFileName="us.png">
+﻿<Language Name="Chinese" IsDefault="true" IsRightToLeft="false" LanguageCulture="zh-CN" FlagImageFileName="cn.png">
   <LocaleResource Name="AdminEmail">
-    <Value>Admin user email</Value>
+    <Value>管理员邮箱</Value>
   </LocaleResource>
   <LocaleResource Name="AdminEmailRequired">
-    <Value>Enter admin email</Value>
+    <Value>请输入管理员邮箱地址</Value>
   </LocaleResource>
   <LocaleResource Name="AdminPassword">
-    <Value>Admin user password</Value>
+    <Value>管理员密码</Value>
   </LocaleResource>
   <LocaleResource Name="AdminPasswordRequired">
-    <Value>Enter admin password</Value>
+    <Value>请输入管理员密码</Value>
   </LocaleResource>
   <LocaleResource Name="ConfigureDirectoryPermissions">
-    <Value>The '{0}' account is not granted with Modify permission on folder '{1}'. Please configure these permissions.</Value>
+    <Value>当前指定帐号 '{0}' 没有修改 '{1}' 目录的权限. 请重新给当前帐号授权.</Value>
   </LocaleResource>
   <LocaleResource Name="ConfigureFilePermissions">
-    <Value>The '{0}' account is not granted with Modify permission on file '{1}'. Please configure these permissions.</Value>
+    <Value>当前指定帐号 '{0}' 没有修改 '{1}' 文件的权限. 请重新给当前帐号授权.</Value>
   </LocaleResource>
   <LocaleResource Name="ConfirmPassword">
-    <Value>Confirm the password</Value>
+    <Value>确认密码</Value>
   </LocaleResource>
   <LocaleResource Name="ConfirmPasswordRequired">
-    <Value>Enter confirm password</Value>
+    <Value>请输入确认密码</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionString">
-    <Value>Connection string</Value>
+    <Value>数据库连接字符串</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionStringRequired">
-    <Value>A SQL connection string is required</Value>
+    <Value>数据库连接字符串是必填项</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionStringValues">
-    <Value>Enter SQL connection values</Value>
+    <Value>请输入数据库连接字符串</Value>
   </LocaleResource>
   <LocaleResource Name="ConnectionStringWrongFormat">
-    <Value>Wrong SQL connection string format</Value>
+    <Value>错误的数据库连接字符串</Value>
   </LocaleResource>
   <LocaleResource Name="CreateDatabaseIfDoesNotExist">
-    <Value>Create database if it doesn't exist</Value>
+    <Value>如果数据库不存在，则自动创建</Value>
   </LocaleResource>
   <LocaleResource Name="CreateSampleData">
-    <Value>Create sample data</Value>
+    <Value>创建示例数据</Value>
   </LocaleResource>
   <LocaleResource Name="CustomCollation">
-    <Value>Specify custom SQL Server collation</Value>
+    <Value>指定自定义SQL Server排序规则</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseCreationError">
-    <Value>An error occurred while creating the database: {0}</Value>
+    <Value>数据库创建失败: {0}</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseInformation">
-    <Value>Database information</Value>
+    <Value>数据库信息</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseName">
-    <Value>Database name</Value>
+    <Value>数据库名称</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseNameRequired">
-    <Value>Database name is required</Value>
+    <Value>数据库名称是必填项</Value>
   </LocaleResource>
   <LocaleResource Name="DatabaseNotExists">
-    <Value>Database does not exist or you don't have permissions to connect to it</Value>
+    <Value>数据库不存在或者你没有权限连接数据库</Value>
   </LocaleResource>
   <LocaleResource Name="DataProviderRequired">
-    <Value>Select data provider</Value>
+    <Value>选择数据提供商</Value>
   </LocaleResource>
   <LocaleResource Name="Example">
-    <Value>Example</Value>
+    <Value>范例</Value>
   </LocaleResource>
   <LocaleResource Name="Install">
-    <Value>Install</Value>
+    <Value>安装</Value>
   </LocaleResource>
   <LocaleResource Name="Installing">
-    <Value>Installing SmartStore.NET...</Value>
+    <Value>正在安装 SmartStore.NET...</Value>
   </LocaleResource>
   <LocaleResource Name="PasswordsDoNotMatch">
-    <Value>The passwords do not match</Value>
+    <Value>两次输入密码不一致</Value>
   </LocaleResource>
   <LocaleResource Name="RawConnectionString">
-    <Value>Enter raw connection string (advanced)</Value>
+    <Value>输入原始连接字符串（高级）</Value>
   </LocaleResource>
   <LocaleResource Name="Recommended">
-    <Value>[Recommended]</Value>
+    <Value>[推荐]</Value>
   </LocaleResource>
   <LocaleResource Name="RestartInstallation">
-    <Value>Restart installation</Value>
+    <Value>重新安装</Value>
   </LocaleResource>
   <LocaleResource Name="RestartInstallationTooltip">
-    <Value>Click to restart the installation process (clear all cached values)</Value>
+    <Value>点击重新开始安装过程（清除所有的缓存值）</Value>
   </LocaleResource>
   <LocaleResource Name="SetupFailed">
-    <Value>Setup failed: {0}</Value>
+    <Value>安装失败: {0}</Value>
   </LocaleResource>
   <LocaleResource Name="SqlAuthentication">
-    <Value>Use SQL Server account</Value>
+    <Value>使用 SQL Server 帐号</Value>
   </LocaleResource>
   <LocaleResource Name="SqlCompact">
-    <Value>Use built-in data storage (SQL Server Compact)</Value>
+    <Value>使用内置的数据存储（SQL Server精简）</Value>
   </LocaleResource>
   <LocaleResource Name="SqlServerName">
-    <Value>SQL Server name</Value>
+    <Value>SQL Server名称</Value>
   </LocaleResource>
   <LocaleResource Name="SqlServerNameRequired">
-    <Value>SQL Server name is required</Value>
+    <Value>SQL Server名称是必填项</Value>
   </LocaleResource>
   <LocaleResource Name="SqlServerPassword">
-    <Value>SQL Password</Value>
+    <Value>SQL 密码</Value>
   </LocaleResource>
   <LocaleResource Name="SqlServerPasswordRequired">
-    <Value>SQL Password is required</Value>
+    <Value>SQL 密码是必填项</Value>
   </LocaleResource>
   <LocaleResource Name="SqlServerUsername">
-    <Value>SQL Username</Value>
+    <Value>SQL 用户名</Value>
   </LocaleResource>
   <LocaleResource Name="SqlServerUsernameRequired">
-    <Value>SQL Username is required</Value>
+    <Value>SQL 用户名是必填项</Value>
   </LocaleResource>
   <LocaleResource Name="SqlStandard">
-    <Value>Use SQL Server (or SQL Express) database</Value>
+    <Value>使用SQL Server（或SQL Express的）数据库</Value>
   </LocaleResource>
   <LocaleResource Name="StoreInformation">
-    <Value>Store information</Value>
+    <Value>商城信息</Value>
   </LocaleResource>
   <LocaleResource Name="Title">
-    <Value>Installation</Value>
+    <Value>安装</Value>
   </LocaleResource>
   <LocaleResource Name="Tooltip1">
-    <Value>SmartStore.NET is the leading ASP.NET online shop e-commerce solution. This wizard will guide you through the process of configuring SmartStore.NET</Value>
+    <Value>SmartStore.NET是领先的ASP.NET在线商店的电子商务解决方案。该向导将引导您完成配置过程SmartStore.NET</Value>
   </LocaleResource>
   <LocaleResource Name="Tooltip2">
-    <Value>To complete this wizard, you must know some information regarding your database server ("connection string"). Please contact your ISP if necessary. If you're installing on a local machine or server, you might need information from your System Admin.</Value>
+    <Value>要完成此向导，你必须知道关于你的数据库服务器（“连接字符串”）的一些信息。如有需要请联系您的ISP。如果您是在本地机器或服务器上安装，你可能需要从系统管理的信息。</Value>
   </LocaleResource>
   <LocaleResource Name="WindowsAuthentication">
-    <Value>Use integrated Windows authentication</Value>
+    <Value>使用集成的Windows身份验证</Value>
   </LocaleResource>
   
   <LocaleResource Name="PrimaryLanguage">
-    <Value>Primary language</Value>
+    <Value>主要语言</Value>
   </LocaleResource>
   <LocaleResource Name="PrimaryLanguageRequired">
-    <Value>Primary language is required</Value>
+    <Value>主要语言 是必填项</Value>
   </LocaleResource>
   <LocaleResource Name="ConfirmInstall">
-    <Value>Do you want to install SmartStore.NET now?</Value>
+    <Value>你想现在安装SmartStore.NET?</Value>
   </LocaleResource>
   <LocaleResource Name="AdminEmailValue">
     <Value>admin@mystore.com</Value>
   </LocaleResource>
   
   <LocaleResource Name="MediaStorage.Label">
-    <Value>Media storage</Value>
+    <Value>存储介质</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.Hint">
-    <Value>Select 'File system', if your database does not provide enough disk space (&lt; 500 MB). Otherwise, 'Database' is recommended.</Value>
+    <Value>选择“文件系统”，如果你的数据库没有提供足够的磁盘空间（小于500MB）。否则，建议使用“数据库”存储。</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.DB">
-    <Value>Database</Value>
+    <Value>数据库</Value>
   </LocaleResource>
   <LocaleResource Name="MediaStorage.FS">
-    <Value>File system</Value>
+    <Value>文件系统</Value>
   </LocaleResource>
 
   <LocaleResource Name="Common.Notification">
-    <Value>Alert</Value>
+    <Value>警告</Value>
   </LocaleResource>
   <LocaleResource Name="Common.StartShop">
-    <Value>Yippieee! The installation was completed successfully ;-) Your shop is being started now...</Value>
+    <Value>Yippeeee！安装成功完成;-)你的店现在正在启动...</Value>
   </LocaleResource>
   
   <LocaleResource Name="Progress.CheckingRequirements">
-    <Value>Checking requirements</Value>
+    <Value>检查要求</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.BuildingDatabase">
-    <Value>Building database</Value>
+    <Value>数据库建设</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.InstallingPlugins">
-    <Value>Installing plugin {0} of {1}</Value>
+    <Value>正在安装插件 {0} / {1}</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.Finalizing">
-    <Value>Finalizing installation</Value>
+    <Value>安装成功</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.CreatingRequiredData">
-    <Value>Creating required data</Value>
+    <Value>正在创建必要数据</Value>
   </LocaleResource>
   <LocaleResource Name="Progress.CreatingSampleData">
-    <Value>Creating sample data</Value>
+    <Value>正在创建范例数据</Value>
   </LocaleResource>
 
   <LocaleResource Name="InstallOptions">
-    <Value>Options</Value>
+    <Value>选项</Value>
   </LocaleResource>
 
 </Language>
