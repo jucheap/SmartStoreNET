@@ -391,7 +391,7 @@
     <Value>密码</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Login.Fields.RememberMe">
-    <Value>还记得我吗？</Value>
+    <Value>记住我？</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Login.Fields.UserName">
     <Value>用户名</Value>

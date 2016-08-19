@@ -118,150 +118,150 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="AddNew" xml:space="preserve">
-    <value>Add new record</value>
+    <value>添加</value>
   </data>
   <data name="Delete" xml:space="preserve">
-    <value>Delete</value>
+    <value>删除</value>
   </data>
   <data name="Cancel" xml:space="preserve">
-    <value>Cancel</value>
+    <value>取消</value>
   </data>
   <data name="Update" xml:space="preserve">
-    <value>Update</value>
+    <value>更新</value>
   </data>
   <data name="Insert" xml:space="preserve">
-    <value>Insert</value>
+    <value>插入</value>
   </data>
   <data name="Edit" xml:space="preserve">
-    <value>Edit</value>
+    <value>编辑</value>
   </data>
   <data name="Select" xml:space="preserve">
-    <value>Select</value>
+    <value>选择</value>
   </data>
   <data name="Page" xml:space="preserve">
     <value>Page </value>
   </data>
   <data name="DisplayingItems" xml:space="preserve">
-    <value>Displaying items {0} - {1} of {2}</value>
+    <value>显示 {0} - {1} 条,共 {2}条</value>
   </data>
   <data name="PageOf" xml:space="preserve">
     <value>of {0}</value>
   </data>
   <data name="Filter" xml:space="preserve">
-    <value>Filter</value>
+    <value>筛选</value>
   </data>
   <data name="FilterAnd" xml:space="preserve">
-    <value>And</value>
+    <value>并且</value>
   </data>
   <data name="FilterClear" xml:space="preserve">
-    <value>Clear Filter</value>
+    <value>取消筛选</value>
   </data>
   <data name="FilterDateEq" xml:space="preserve">
-    <value>Is equal to</value>
+    <value>等于</value>
   </data>
   <data name="FilterDateGe" xml:space="preserve">
-    <value>Is after or equal to</value>
+    <value>大于等于</value>
   </data>
   <data name="FilterDateGt" xml:space="preserve">
-    <value>Is after</value>
+    <value>大于</value>
   </data>
   <data name="FilterDateLe" xml:space="preserve">
-    <value>Is before or equal to</value>
+    <value>小于等于</value>
   </data>
   <data name="FilterDateLt" xml:space="preserve">
-    <value>Is before</value>
+    <value>小于</value>
   </data>
   <data name="FilterDateNe" xml:space="preserve">
-    <value>Is not equal to</value>
+    <value>不等于</value>
   </data>
   <data name="FilterNumberEq" xml:space="preserve">
-    <value>Is equal to</value>
+    <value>等于</value>
   </data>
   <data name="FilterNumberGe" xml:space="preserve">
-    <value>Is greater than or equal to</value>
+    <value>大于等于</value>
   </data>
   <data name="FilterNumberGt" xml:space="preserve">
-    <value>Is greater than</value>
+    <value>大于</value>
   </data>
   <data name="FilterNumberLe" xml:space="preserve">
-    <value>Is less than or equal to</value>
+    <value>小于等于</value>
   </data>
   <data name="FilterNumberLt" xml:space="preserve">
-    <value>Is less than</value>
+    <value>小于</value>
   </data>
   <data name="FilterNumberNe" xml:space="preserve">
-    <value>Is not equal to</value>
+    <value>不等于</value>
   </data>
   <data name="FilterShowRows" xml:space="preserve">
     <value>Show rows with value that</value>
   </data>
   <data name="FilterStringEndsWith" xml:space="preserve">
-    <value>Ends with</value>
+    <value>以..结束</value>
   </data>
   <data name="FilterStringEq" xml:space="preserve">
-    <value>Is equal to</value>
+    <value>等于</value>
   </data>
   <data name="FilterStringNe" xml:space="preserve">
-    <value>Is not equal to</value>
+    <value>不等于</value>
   </data>
   <data name="FilterStringStartsWith" xml:space="preserve">
-    <value>Starts with</value>
+    <value>以..开始</value>
   </data>
   <data name="FilterStringSubstringOf" xml:space="preserve">
-    <value>Contains</value>
+    <value>包含</value>
   </data>
   <data name="GroupHint" xml:space="preserve">
     <value>Drag a column header and drop it here to group by that column</value>
   </data>
   <data name="FilterEnumEq" xml:space="preserve">
-    <value>Is equal to</value>
+    <value>等于</value>
   </data>
   <data name="FilterEnumNe" xml:space="preserve">
-    <value>Is not equal to</value>
+    <value>不等于</value>
   </data>
   <data name="DeleteConfirmation" xml:space="preserve">
-    <value>Are you sure you want to delete this record?</value>
+    <value>你确定要删除此记录?</value>
   </data>
   <data name="FilterSelectValue" xml:space="preserve">
-    <value>-Select value-</value>
+    <value>-请选择-</value>
   </data>
   <data name="FilterBoolIsFalse" xml:space="preserve">
-    <value>is false</value>
+    <value>否</value>
   </data>
   <data name="FilterBoolIsTrue" xml:space="preserve">
-    <value>is true</value>
+    <value>是</value>
   </data>
   <data name="NoRecords" xml:space="preserve">
-    <value>No records to display.</value>
+    <value>没有查询到相关数据.</value>
   </data>
   <data name="CancelChanges" xml:space="preserve">
-    <value>Cancel changes</value>
+    <value>取消修改</value>
   </data>
   <data name="SaveChanges" xml:space="preserve">
-    <value>Save changes</value>
+    <value>保存</value>
   </data>
   <data name="Refresh" xml:space="preserve">
-    <value>Refresh</value>
+    <value>刷新</value>
   </data>
   <data name="SortedAsc" xml:space="preserve">
-    <value>sorted ascending</value>
+    <value>升序</value>
   </data>
   <data name="SortedDesc" xml:space="preserve">
-    <value>sorted descending</value>
+    <value>降序</value>
   </data>
   <data name="UnGroup" xml:space="preserve">
-    <value>ungroup</value>
+    <value>取消组合</value>
   </data>
   <data name="FilterForeignKeyEq" xml:space="preserve">
-    <value>Is equal to</value>
+    <value>等于</value>
   </data>
   <data name="FilterForeignKeyNe" xml:space="preserve">
-    <value>Is not equal to</value>
+    <value>不等于</value>
   </data>
   <data name="FilterStringNotSubstringOf" xml:space="preserve">
-    <value>Does not contain</value>
+    <value>不包含</value>
   </data>
   <data name="FilterOr" xml:space="preserve">
-    <value>Or</value>
+    <value>或者</value>
   </data>
 </root>
