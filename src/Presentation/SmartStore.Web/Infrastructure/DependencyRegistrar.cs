@@ -1,8 +1,4 @@
-using System.Collections.Generic;
 using Autofac;
-using Autofac.Core;
-using Autofac.Integration.Mvc;
-using SmartStore.Core.Caching;
 using SmartStore.Core.Infrastructure;
 using SmartStore.Core.Infrastructure.DependencyManagement;
 using SmartStore.Data.Setup;
@@ -54,7 +50,7 @@ namespace SmartStore.Web.Infrastructure
                     m.For(em => em.FlagImageFileName, "de.png");
                 })
                 .InstancePerRequest();
-            builder.RegisterType<DeDESeedData>()
+            builder.RegisterType<ZhCnSeedData>()
                 .As<InvariantSeedData>()
                 .WithMetadata<InstallationAppLanguageMetadata>(m =>
                 {
