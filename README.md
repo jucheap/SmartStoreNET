@@ -92,3 +92,6 @@ We have set up a live online demo for you so you are able to test SmartStore.NET
 ## License
 
 SmartStore.NET is released under the [GPLv3 license](http://www.gnu.org/licenses/gpl-3.0.txt).
+
+## 新增功能
+此版本中，新增了安装的时候，对中文的支持！
