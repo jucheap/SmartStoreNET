@@ -12874,13 +12874,13 @@
     <Value>应用</Value>
   </LocaleResource>
   <LocaleResource Name="Common.AreYouSure">
-    <Value>你肯定吗？</Value>
+    <Value>你确定吗？</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Auto">
-    <Value>汽车</Value>
+    <Value>自动</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Back">
-    <Value>回来</Value>
+    <Value>返回</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Buttons.Danger">
     <Value>危险</Value>
@@ -14992,7 +14992,7 @@
     <Value>帐户编号：{0}</Value>
   </LocaleResource>
   <LocaleResource Name="PDFInvoice.Footer.Bankcode">
-    <Value>bankcode：{0}</Value>
+    <Value>银行编号：{0}</Value>
   </LocaleResource>
   <LocaleResource Name="PDFInvoice.Footer.Bic">
     <Value>BIC：{0}</Value>
@@ -16711,7 +16711,7 @@
     <Value>查看收藏</Value>
   </LocaleResource>
   <LocaleResource Name="Wishlist.UpdateCart">
-    <Value>更新清单</Value>
+    <Value>更新购物车</Value>
   </LocaleResource>
   <LocaleResource Name="Wishlist.WishlistOf">
     <Value>{0}的心愿</Value>
