@@ -424,10 +424,10 @@
     <Value>注销</Value>
   </LocaleResource>
   <LocaleResource Name="Account.MyAccount">
-    <Value>我的帐户</Value>
+    <Value>个人中心</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Navigation">
-    <Value>我的帐户</Value>
+    <Value>导航</Value>
   </LocaleResource>
   <LocaleResource Name="Account.Options">
     <Value>选项</Value>
@@ -5725,7 +5725,7 @@
     <Value>CAPTCHA是一个程序，可以判断出它的用户是一个人或一个计算机。你可能看到他们-在网页登记表格底部扭曲的文字-彩色图像。CAPTCHA是许多网站用来防止滥用“机器人”或程序自动生成垃圾邮件通常写。没有计算机程序可以读取扭曲的文本以及人类，所以机器人不能浏览网站的验证码保护。smartstore.net使用reCAPTCHA。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.GeneralCommon">
-    <Value>一般和杂项设置</Value>
+    <Value>基础设置</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.AdminAreaAllowedIpAddresses">
     <Value>管理区允许的知识产权</Value>
@@ -5989,7 +5989,7 @@
     <Value>输入你的邮政编码</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.ContactDataSettings">
-    <Value>接触数据</Value>
+    <Value>联系方式</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.GeneralCommon.ContactDataSettings.CompanyEmailAddress">
     <Value>电子邮件地址-公司</Value>
@@ -7843,7 +7843,7 @@
     <Value>重写页面标题。默认是标题的新闻。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.News.NewsItems.Fields.Published">
-    <Value>出版</Value>
+    <Value>是否发布</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ContentManagement.News.NewsItems.Fields.Published.Hint">
     <Value>确定在您的存储中是否已发布新闻项（可见）。</Value>
@@ -8158,7 +8158,7 @@
     <Value>请输入该幻灯片的标题。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.CurrentCarts">
-    <Value>目前购物车</Value>
+    <Value>购物车</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.CurrentCarts.Customer">
     <Value>客户</Value>
@@ -8866,10 +8866,10 @@
     <Value>运行报表</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Dashboard">
-    <Value>仪表板</Value>
+    <Value>控制台</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Dashboard.StoreStatistics">
-    <Value>储存统计</Value>
+    <Value>商店统计</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.DataExchange.ColumnMapping.DefaultValue">
     <Value>默认值</Value>
@@ -13060,7 +13060,7 @@
     <Value>文件</Value>
   </LocaleResource>
   <LocaleResource Name="Common.FileType.Flash">
-    <Value>闪光</Value>
+    <Value>Flash</Value>
   </LocaleResource>
   <LocaleResource Name="Common.FileType.Texts">
     <Value>文本</Value>
@@ -13084,7 +13084,7 @@
     <Value>上传文件</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Filter">
-    <Value>滤波器</Value>
+    <Value>过滤</Value>
   </LocaleResource>
   <LocaleResource Name="Common.FreeShipping">
     <Value>免费送货</Value>
@@ -13114,7 +13114,7 @@
     <Value>无效</Value>
   </LocaleResource>
   <LocaleResource Name="Common.IsActive">
-    <Value>活跃</Value>
+    <Value>激活</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Language">
     <Value>语言</Value>
@@ -13144,13 +13144,13 @@
     <Value>绝不</Value>
   </LocaleResource>
   <LocaleResource Name="Common.New">
-    <Value>新的</Value>
+    <Value>新增</Value>
   </LocaleResource>
   <LocaleResource Name="Common.No">
     <Value>没有</Value>
   </LocaleResource>
   <LocaleResource Name="Common.NoCancel">
-    <Value>不，取消</Value>
+    <Value>取消</Value>
   </LocaleResource>
   <LocaleResource Name="Common.NoProcessingSecurityIssue">
     <Value>出于安全原因，该操作未被执行。</Value>
@@ -13165,13 +13165,13 @@
     <Value>不可选择</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Off">
-    <Value>下车</Value>
+    <Value>关</Value>
   </LocaleResource>
   <LocaleResource Name="Common.OK">
-    <Value>好 啊</Value>
+    <Value>确定</Value>
   </LocaleResource>
   <LocaleResource Name="Common.On">
-    <Value>在</Value>
+    <Value>开</Value>
   </LocaleResource>
   <LocaleResource Name="Common.OpenInShop">
     <Value>开网店</Value>
@@ -13258,7 +13258,7 @@
     <Value>发送</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Shopbar.Basket">
-    <Value>篮子</Value>
+    <Value>购物车</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Shopbar.Compare">
     <Value>比较</Value>
@@ -13276,10 +13276,10 @@
     <Value>产品</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Shopbar.WishlistPartOne">
-    <Value>希望</Value>
+    <Value>我的</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Shopbar.WishlistPartTwo">
-    <Value>列表</Value>
+    <Value>关注</Value>
   </LocaleResource>
   <LocaleResource Name="Common.Show">
     <Value>显示</Value>
