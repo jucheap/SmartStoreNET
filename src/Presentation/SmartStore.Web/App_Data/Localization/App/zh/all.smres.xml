@@ -184,7 +184,7 @@
     <Value>返回项目（的）</Value>
   </LocaleResource>
   <LocaleResource Name="Account.CustomerReturnRequests">
-    <Value>返回请求</Value>
+    <Value>退货申请</Value>
   </LocaleResource>
   <LocaleResource Name="Account.CustomerReturnRequests.Action">
     <Value>返回操作：{0}</Value>
@@ -619,7 +619,7 @@
     <Value>删除了产品属性（“{0}”）</Value>
   </LocaleResource>
   <LocaleResource Name="ActivityLog.DeleteReturnRequest">
-    <Value>删除一个返回请求（身份证= {0}）</Value>
+    <Value>删除一个退货申请（身份证= {0}）</Value>
   </LocaleResource>
   <LocaleResource Name="ActivityLog.DeleteSetting">
     <Value>删除一个设置（“{0}”）</Value>
@@ -658,7 +658,7 @@
     <Value>编辑产品属性（“{0}”）</Value>
   </LocaleResource>
   <LocaleResource Name="ActivityLog.EditReturnRequest">
-    <Value>编辑返回请求（标识为{0}）</Value>
+    <Value>编辑退货申请（标识为{0}）</Value>
   </LocaleResource>
   <LocaleResource Name="ActivityLog.EditSettings">
     <Value>编辑设置</Value>
@@ -2323,7 +2323,7 @@
     <Value>指定网页上显示的显示顺序。1代表列表中的第一个元素。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.Fields.ID">
-    <Value>身份证件</Value>
+    <Value>标识</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Catalog.Products.Fields.ID.Hint">
     <Value>产品标识。</Value>
@@ -4159,7 +4159,7 @@
     <Value>电子邮件帐户已被成功更新。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.ExternalAuthenticationMethods">
-    <Value>外部认证方法</Value>
+    <Value>第三方认证</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.ExternalAuthenticationMethods.BackToList">
     <Value>返回身份验证方法列表</Value>
@@ -6517,10 +6517,10 @@
     <Value>输入最小订单总额。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.NumberOfDaysReturnRequestAvailable">
-    <Value>返回请求可用的天数</Value>
+    <Value>退货申请可用的天数</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.NumberOfDaysReturnRequestAvailable.Hint">
-    <Value>设置在客户区内可提供的返回请求链接的若干天。例如，如果商店老板允许在30天内退货，他们将把这30。登录客户，查看订单在我的帐户，然后不见返回请求按钮的订单完成了三十天以上。</Value>
+    <Value>设置在客户区内可提供的退货申请链接的若干天。例如，如果商店老板允许在30天内退货，他们将把这30。登录客户，查看订单在我的帐户，然后不见退货申请按钮的订单完成了三十天以上。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.OnePageCheckoutEnabled">
     <Value>使用一页结帐</Value>
@@ -6541,13 +6541,13 @@
     <Value>返回行动</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.ReturnRequestActions.Hint">
-    <Value>一个逗号分隔的行动的客户将能够选择在提交一个返回请求时。</Value>
+    <Value>一个逗号分隔的行动的客户将能够选择在提交一个退货申请时。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.ReturnRequestReasons">
     <Value>返回原因</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.ReturnRequestReasons.Hint">
-    <Value>一个逗号分隔的原因，客户可以选择在提交时，返回请求的列表。</Value>
+    <Value>一个逗号分隔的原因，客户可以选择在提交时，退货申请的列表。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.ReturnRequestsDescription1">
     <Value>返回系统将允许您的客户要求返回他们已经购买的物品。这些也被称为RMA请求。</Value>
@@ -6562,7 +6562,7 @@
     <Value>如果你想让客户向他们以前购买的物品提交退货请求，请检查这个盒子。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.ReturnRequestSettings">
-    <Value>返回请求设置</Value>
+    <Value>退货申请设置</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Configuration.Settings.Order.TermsOfServiceEnabled">
     <Value>服务条款</Value>
@@ -10558,7 +10558,7 @@
     <Value>[自动船舶，每{0} {1} ]</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Orders.Products.ReturnRequest">
-    <Value>返回请求</Value>
+    <Value>退货申请</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Orders.Products.ReturnRequest.Create">
     <Value>创建返回</Value>
@@ -11092,7 +11092,7 @@
     <Value>折扣已被成功更新。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.NewsLetterSubscriptions">
-    <Value>通讯用户</Value>
+    <Value>新闻订阅</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Promotions.NewsLetterSubscriptions.Fields">
     <Value>主动</Value>
@@ -11230,7 +11230,7 @@
     <Value>付款已被成功地更新。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests">
-    <Value>返回请求</Value>
+    <Value>退货申请</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Accept">
     <Value>接受</Value>
@@ -11239,13 +11239,13 @@
     <Value>接受退货要求</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.BackToList">
-    <Value>返回请求列表</Value>
+    <Value>退货申请列表</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Deleted">
-    <Value>返回请求已被删除成功。</Value>
+    <Value>退货申请已被删除成功。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.EditReturnRequestDetails">
-    <Value>编辑返回请求详细信息</Value>
+    <Value>编辑退货申请详细信息</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Fields">
     <Value>日期</Value>
@@ -11254,7 +11254,7 @@
     <Value>日期</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Fields.CreatedOn.Hint">
-    <Value>提交已提交的返回请求的日期。</Value>
+    <Value>提交已提交的退货申请的日期。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Fields.Customer">
     <Value>客户</Value>
@@ -11272,7 +11272,7 @@
     <Value>身份证件</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Fields.ID.Hint">
-    <Value>返回请求标识符。</Value>
+    <Value>退货申请标识符。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Fields.Order">
     <Value>秩序</Value>
@@ -11317,7 +11317,7 @@
     <Value>输入员工意见</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Fields.Status">
-    <Value>返回请求状态</Value>
+    <Value>退货申请状态</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Fields.Status.Hint">
     <Value>选择请求状态</Value>
@@ -11329,7 +11329,7 @@
     <Value>关于状态变化的通知客户</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.ReturnRequests.Updated">
-    <Value>已成功更新返回请求。</Value>
+    <Value>已成功更新退货申请。</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.Sales">
     <Value>销售</Value>
@@ -11359,7 +11359,7 @@
     <Value>今天</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.SalesReport.Bestsellers">
-    <Value>畅销书</Value>
+    <Value>畅销产品</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.SalesReport.Bestsellers.BillingCountry">
     <Value>收费国家</Value>
@@ -11368,10 +11368,10 @@
     <Value>按订单计费的国家</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.SalesReport.Bestsellers.ByAmount">
-    <Value>畅销书的数量</Value>
+    <Value>畅销产品的数量</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.SalesReport.Bestsellers.ByQuantity">
-    <Value>畅销书的数量</Value>
+    <Value>畅销产品的数量</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.SalesReport.Bestsellers.EndDate">
     <Value>结束日期</Value>
@@ -11434,7 +11434,7 @@
     <Value>未付订单（未付款状态）</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.SalesReport.NeverSold">
-    <Value>产品从未购买</Value>
+    <Value>从未被购买的产品</Value>
   </LocaleResource>
   <LocaleResource Name="Admin.SalesReport.NeverSold.EndDate">
     <Value>结束日期</Value>
@@ -13483,7 +13483,7 @@
     <Value>付款时</Value>
   </LocaleResource>
   <LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GiftCardType.Physical">
-    <Value>物理</Value>
+    <Value>实物</Value>
   </LocaleResource>
   <LocaleResource Name="Enums.SmartStore.Core.Domain.Catalog.GiftCardType.Virtual">
     <Value>虚拟</Value>
@@ -15613,7 +15613,7 @@
     <Value>评论</Value>
   </LocaleResource>
   <LocaleResource Name="ReturnRequests.NoItemsSubmitted">
-    <Value>您的返回请求尚未提交，因为您没有选择任何项目。</Value>
+    <Value>您的退货申请尚未提交，因为您没有选择任何项目。</Value>
   </LocaleResource>
   <LocaleResource Name="ReturnRequests.Products.Name">
     <Value>产品</Value>
@@ -15637,7 +15637,7 @@
     <Value>提交退货申请</Value>
   </LocaleResource>
   <LocaleResource Name="ReturnRequests.Submitted">
-    <Value>您的返回请求已成功提交。</Value>
+    <Value>您的退货申请已成功提交。</Value>
   </LocaleResource>
   <LocaleResource Name="ReturnRequests.Title">
     <Value>Return item(s) from order #{0}</Value>
