@@ -22,8 +22,6 @@ using SmartStore.Core.Fakes;
 using SmartStore.Core.Infrastructure;
 using SmartStore.Core.Infrastructure.DependencyManagement;
 using SmartStore.Core.IO;
-using SmartStore.Core.IO.VirtualPath;
-using SmartStore.Core.IO.WebSite;
 using SmartStore.Core.Localization;
 using SmartStore.Core.Logging;
 using SmartStore.Core.Packaging;
@@ -342,6 +340,8 @@ namespace SmartStore.Web.Framework
 			builder.Register(x => x.Resolve<DataProviderFactory>().LoadDataProvider()).As<IDataProvider>().InstancePerDependency();
 			builder.Register(x => (IEfDataProvider)x.Resolve<DataProviderFactory>().LoadDataProvider()).As<IEfDataProvider>().InstancePerDependency();
 
+			builder.RegisterType<DefaultHookHandler>().As<IHookHandler>().InstancePerRequest();
+
 			if (DataSettings.Current.IsValid())
 			{
 				// register DB Hooks (only when app was installed properly)
@@ -372,7 +372,9 @@ namespace SmartStore.Web.Framework
 
 					registration.WithMetadata<HookMetadata>(m => 
 					{ 
-						m.For(em => em.HookedType, hookedType); 
+						m.For(em => em.HookedType, hookedType);
+						m.For(em => em.ImplType, hook);
+						m.For(em => em.Important, hookedType.HasAttribute<ImportantAttribute>(false));
 					});
 				}
 
@@ -757,7 +759,7 @@ namespace SmartStore.Web.Framework
 		protected override void Load(ContainerBuilder builder)
 		{
 			// register theming services
-			builder.Register<DefaultThemeRegistry>(x => new DefaultThemeRegistry(x.Resolve<IEventPublisher>(), null, null, true)).As<IThemeRegistry>().SingleInstance();
+			builder.Register<DefaultThemeRegistry>(x => new DefaultThemeRegistry(x.Resolve<IEventPublisher>(), x.Resolve<IApplicationEnvironment>(), null, null, true)).As<IThemeRegistry>().SingleInstance();
 			builder.RegisterType<ThemeFileResolver>().As<IThemeFileResolver>().SingleInstance();
 
 			builder.RegisterType<ThemeContext>().As<IThemeContext>().InstancePerRequest();
@@ -778,13 +780,15 @@ namespace SmartStore.Web.Framework
 		protected override void Load(ContainerBuilder builder)
 		{
 			builder.RegisterType<LocalFileSystem>().As<IFileSystem>().SingleInstance();
+			builder.RegisterType<MediaFileSystem>().As<IMediaFileSystem>().SingleInstance();
 
 			// Register IFileSystem twice, this time explicitly named.
 			// We may need this later in decorator classes as a kind of fallback.
 			builder.RegisterType<LocalFileSystem>().Named<IFileSystem>("local").SingleInstance();
+			builder.RegisterType<MediaFileSystem>().Named<IMediaFileSystem>("local").SingleInstance();
 
-			builder.RegisterType<DefaultVirtualPathProvider>().As<IVirtualPathProvider>().InstancePerRequest();
-			builder.RegisterType<WebSiteFolder>().As<IWebSiteFolder>().InstancePerRequest();
+			builder.RegisterType<DefaultVirtualPathProvider>().As<IVirtualPathProvider>().SingleInstance();
+			builder.RegisterType<LockFileManager>().As<ILockFileManager>().SingleInstance();
 		}
 	}
 

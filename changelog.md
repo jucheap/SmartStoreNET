@@ -3,7 +3,21 @@
 ## SmartStore.NET 3.0
 
 ### Breaking change
-* Removed Web API plugin from open source
+* Removed Web API plugin from open source core
+
+### New Features
+* Output Cache with "donut hole caching" (commercial plugin)
+* REDIS providers for Business Cache, Output Cache and Session State (commercial plugin)
+* Microsoft AZURE provider for media storage (commercial plugin)
+* Message Bus for inter-process messaging between servers (commercial plugin)
+* Configurable media storage path for web farms 
+* Added option to skip shipping method selection in checkout process when only one shipping method is active
+* Added options to capture salutation and title in addresses and customer info
+* Added projection to control the export of individually visible associated products
+* #1002 Web API: Add support for addresses and customer roles navigation property of customer entity
+* #966 Implement new tax calculation logic for shipping and payment fees (Calculate with rate of highest cart amount)
+* #922 New option whether to include the weight of free shipping products in shipping by weight calculation
+* #724 Allow discounts to be applied to manufacturers
 
 ### Improvements
 * Added order message token for accepting third party email handover
@@ -12,15 +26,7 @@
 * Payone: Replace client API by Payone iFrame solution. Allows credit card payment compliant with PCI DSS, SAQ A.
 * Updated Elmar shop info XML from version 1.1 to 2.0
 * #1008 Export: Add support for description projection to all product exporting providers
-
-### New Features
-* Added option to skip shipping method selection in checkout process when only one shipping method is active
-* Added options to capture salutation and title in addresses and customer info
-* Added projection to control the export of individually visible associated products
-* #1002 Web API: Add support for addresses and customer roles navigation property of customer entity
-* #966 Implement new tax calculation logic for shipping and payment fees
-* #922 New option whether to include the weight of free shipping products in shipping by weight calculation
-* #724 Allow discounts to be applied to manufacturers
+* #1015 Implement Entity Picker in discount requirements
 
 ### Bugfixes
 * Currency wasn't displayed at shipping estimation
@@ -30,6 +36,8 @@
 * GMC: Associated products that are not individually visible are not exported anymore. GMC rejects them because the frontend redirects to the grouped product.
 * #999 Export: Projected customer id ignored during price calculation
 * Awarded reward points for a placed order sometimes wrong calculated
+* PayPal PLUS: A changed shipping address/costs was not transmitted to PayPal
+* Bundle item cannot be deleted if it's in a shopping cart
 
 
 ## SmartStore.NET 2.6
