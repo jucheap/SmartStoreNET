@@ -6,28 +6,17 @@ using SmartStore.Core.Data;
 using SmartStore.Core.Domain.Localization;
 using SmartStore.Core.Events;
 using SmartStore.Services.Configuration;
-using SmartStore.Core.Domain.Stores;
 using SmartStore.Services.Stores;
 using SmartStore.Collections;
 using SmartStore.Core;
+using SmartStore.Data.Caching;
 
 namespace SmartStore.Services.Localization
 {
-    /// <summary>
-    /// Language service
-    /// </summary>
     public partial class LanguageService : ILanguageService
     {
-        #region Constants
-        private const string LANGUAGES_ALL_KEY = "SmartStore.language.all-{0}";
         private const string LANGUAGES_COUNT = "SmartStore.language.count-{0}";
-        private const string LANGUAGES_BY_CULTURE_KEY = "SmartStore.language.culture-{0}";
-        private const string LANGUAGES_BY_SEOCODE_KEY = "SmartStore.language.seocode-{0}";
         private const string LANGUAGES_PATTERN_KEY = "SmartStore.language.";
-        private const string LANGUAGES_BY_ID_KEY = "SmartStore.language.id-{0}";
-        #endregion
-
-        #region Fields
 
         private readonly IRepository<Language> _languageRepository;
 		private readonly IStoreMappingService _storeMappingService;
@@ -38,10 +27,6 @@ namespace SmartStore.Services.Localization
 		private readonly ISettingService _settingService;
         private readonly LocalizationSettings _localizationSettings;
         private readonly IEventPublisher _eventPublisher;
-
-        #endregion
-
-        #region Ctor
 
         public LanguageService(
 			IRequestCache requestCache,
@@ -65,14 +50,6 @@ namespace SmartStore.Services.Localization
 			this._storeContext = storeContext;
         }
 
-        #endregion
-        
-        #region Methods
-
-        /// <summary>
-        /// Deletes a language
-        /// </summary>
-        /// <param name="language">Language</param>
         public virtual void DeleteLanguage(Language language)
         {
             if (language == null)
@@ -102,23 +79,18 @@ namespace SmartStore.Services.Localization
 			_eventPublisher.EntityDeleted(language);
         }
 
-        /// <summary>
-        /// Gets all languages
-        /// </summary>
-        /// <param name="showHidden">A value indicating whether to show hidden records</param>
-		/// <param name="storeId">Load records allows only in specified store; pass 0 to load all records</param>
-        /// <returns>Language collection</returns>
 		public virtual IList<Language> GetAllLanguages(bool showHidden = false, int storeId = 0)
         {
-			string key = string.Format(LANGUAGES_ALL_KEY, showHidden);
-			var languages = _requestCache.Get(key, () =>
+			var query = _languageRepository.Table;
+
+			if (!showHidden)
 			{
-				var query = _languageRepository.Table;
-				if (!showHidden)
-					query = query.Where(x => x.Published);
-				query = query.OrderBy(x => x.DisplayOrder);
-				return query.ToList();
-			});
+				query = query.Where(x => x.Published);
+			}
+
+			query = query.OrderBy(x => x.DisplayOrder);
+
+			var languages = query.ToListCached("db.lang.all.{0}".FormatInvariant(showHidden));
 
 			// store mapping
 			if (storeId > 0)
@@ -131,11 +103,6 @@ namespace SmartStore.Services.Localization
 			return languages;
         }
 
-        /// <summary>
-        /// Gets languages count
-        /// </summary>
-        /// <param name="showHidden">A value indicating whether to consider hidden records</param>
-        /// <returns>The count of Languages</returns>
         public virtual int GetLanguagesCount(bool showHidden = false)
         {
             string key = string.Format(LANGUAGES_COUNT, showHidden);
@@ -148,56 +115,34 @@ namespace SmartStore.Services.Localization
             });
         }
 
-        /// <summary>
-        /// Gets a language
-        /// </summary>
-        /// <param name="languageId">Language identifier</param>
-        /// <returns>Language</returns>
         public virtual Language GetLanguageById(int languageId)
         {
             if (languageId == 0)
                 return null;
 
-            string key = string.Format(LANGUAGES_BY_ID_KEY, languageId);
-            return _requestCache.Get(key, () => 
-            { 
-                return _languageRepository.GetById(languageId); 
-            });
-        }
+			return _languageRepository.GetByIdCached(languageId, "db.lang.id-" + languageId);
+		}
 
-        /// <summary>
-        /// Gets a language by culture code (e.g.: en-US)
-        /// </summary>
-        /// <param name="culture">Culture code</param>
-        /// <returns>Language</returns>
         public virtual Language GetLanguageByCulture(string culture)
         {
             if (!culture.HasValue())
                 return null;
 
-            string key = string.Format(LANGUAGES_BY_CULTURE_KEY, culture);
-            return _requestCache.Get(key, () =>
-            {
-                return _languageRepository.Table.Where(x => culture.Equals(x.LanguageCulture, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-            });
-        }
+			return _languageRepository.Table
+				.Where(x => culture.Equals(x.LanguageCulture, StringComparison.InvariantCultureIgnoreCase))
+				.FirstOrDefaultCached("db.lang.culture-" + culture);
+		}
 
         public virtual Language GetLanguageBySeoCode(string seoCode)
         {
             if (!seoCode.HasValue())
                 return null;
 
-            string key = string.Format(LANGUAGES_BY_SEOCODE_KEY, seoCode);
-            return _requestCache.Get(key, () =>
-            {
-                return _languageRepository.Table.Where(x => seoCode.Equals(x.UniqueSeoCode, StringComparison.InvariantCultureIgnoreCase)).FirstOrDefault();
-            });
-        }
+			return _languageRepository.Table
+				.Where(x => seoCode.Equals(x.UniqueSeoCode, StringComparison.InvariantCultureIgnoreCase))
+				.FirstOrDefaultCached("db.lang.seo-" + seoCode);
+		}
 
-        /// <summary>
-        /// Inserts a language
-        /// </summary>
-        /// <param name="language">Language</param>
         public virtual void InsertLanguage(Language language)
         {
             if (language == null)
@@ -205,7 +150,7 @@ namespace SmartStore.Services.Localization
 
             _languageRepository.Insert(language);
 
-            //cache
+            // cache
             _requestCache.RemoveByPattern(LANGUAGES_PATTERN_KEY);
 			_cache.RemoveByPattern(ServiceCacheConsumer.STORE_LANGUAGE_MAP_KEY);
 
@@ -213,10 +158,6 @@ namespace SmartStore.Services.Localization
 			_eventPublisher.EntityInserted(language);
         }
 
-        /// <summary>
-        /// Updates a language
-        /// </summary>
-        /// <param name="language">Language</param>
         public virtual void UpdateLanguage(Language language)
         {
             if (language == null)
@@ -337,7 +278,5 @@ namespace SmartStore.Services.Localization
 			public int Id { get; set; }
 			public string UniqueSeoCode { get; set; }
 		}
-
-        #endregion
     }
 }

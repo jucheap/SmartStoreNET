@@ -26,8 +26,10 @@ using SmartStore.Core.Localization;
 using SmartStore.Core.Logging;
 using SmartStore.Core.Packaging;
 using SmartStore.Core.Plugins;
+using SmartStore.Core.Search;
 using SmartStore.Core.Themes;
 using SmartStore.Data;
+using SmartStore.Data.Caching;
 using SmartStore.Services;
 using SmartStore.Services.Affiliates;
 using SmartStore.Services.Authentication;
@@ -60,6 +62,7 @@ using SmartStore.Services.Orders;
 using SmartStore.Services.Payments;
 using SmartStore.Services.Pdf;
 using SmartStore.Services.Polls;
+using SmartStore.Services.Search;
 using SmartStore.Services.Security;
 using SmartStore.Services.Seo;
 using SmartStore.Services.Shipping;
@@ -96,7 +99,6 @@ namespace SmartStore.Web.Framework
 			builder.RegisterModule(new DbModule(typeFinder));
 			builder.RegisterModule(new CachingModule());
 			builder.RegisterModule(new LocalizationModule());
-			builder.RegisterModule(new LoggingModule());
 			builder.RegisterModule(new EventModule(typeFinder, pluginFinder));
 			builder.RegisterModule(new MessagingModule());
 			builder.RegisterModule(new WebModule(typeFinder));
@@ -133,6 +135,11 @@ namespace SmartStore.Web.Framework
 			// sources
 			builder.RegisterSource(new SettingsSource());
 			builder.RegisterSource(new WorkSource());
+
+			// Logging stuff
+			builder.RegisterType<Notifier>().As<INotifier>().InstancePerRequest();
+			builder.RegisterType<DbLogService>().As<ILogService>().InstancePerRequest();
+			builder.RegisterType<CustomerActivityService>().As<ICustomerActivityService>().InstancePerRequest();
 
 			// web helper
 			builder.RegisterType<WebHelper>().As<IWebHelper>().InstancePerRequest();
@@ -236,7 +243,7 @@ namespace SmartStore.Web.Framework
 			builder.RegisterType<NewsService>().As<INewsService>().InstancePerRequest();
 
 			builder.RegisterType<DateTimeHelper>().As<IDateTimeHelper>().InstancePerRequest();
-			builder.RegisterType<SitemapGenerator>().As<ISitemapGenerator>().InstancePerRequest();
+			builder.RegisterType<XmlSitemapGenerator>().As<IXmlSitemapGenerator>().InstancePerRequest();
 			builder.RegisterType<PageAssetsBuilder>().As<IPageAssetsBuilder>().InstancePerRequest();
 
 			builder.RegisterType<ScheduleTaskService>().As<IScheduleTaskService>().InstancePerRequest();
@@ -251,6 +258,10 @@ namespace SmartStore.Web.Framework
 
 			builder.RegisterType<FilterService>().As<IFilterService>().InstancePerRequest();
 			builder.RegisterType<CommonServices>().As<ICommonServices>().InstancePerRequest();
+
+			builder.RegisterType<DefaultIndexManager>().As<IIndexManager>().InstancePerRequest();
+			builder.RegisterType<CatalogSearchService>().As<ICatalogSearchService>().InstancePerRequest();
+			builder.RegisterType<LinqCatalogSearchService>().Named<ICatalogSearchService>("linq").InstancePerRequest();
 		}
 
 		protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, IComponentRegistration registration)
@@ -342,7 +353,9 @@ namespace SmartStore.Web.Framework
 
 			builder.RegisterType<DefaultHookHandler>().As<IHookHandler>().InstancePerRequest();
 
-			if (DataSettings.Current.IsValid())
+			builder.RegisterType<EfDbCache>().As<IDbCache>().SingleInstance();
+
+			if (DataSettings.DatabaseIsInstalled())
 			{
 				// register DB Hooks (only when app was installed properly)
 
@@ -427,67 +440,6 @@ namespace SmartStore.Web.Framework
 		private static PropertyInfo FindQuerySettingsProperty(Type type)
 		{
 			return type.GetProperty("QuerySettings", typeof(DbQuerySettings));
-		}
-	}
-
-	public class LoggingModule : Module
-	{
-		protected override void Load(ContainerBuilder builder)
-		{
-			builder.RegisterType<Notifier>().As<INotifier>().InstancePerRequest();
-			builder.RegisterType<DefaultLogger>().As<ILogger>().InstancePerRequest();
-			builder.RegisterType<CustomerActivityService>().As<ICustomerActivityService>().InstancePerRequest();
-		}
-
-		protected override void AttachToComponentRegistration(IComponentRegistry componentRegistry, IComponentRegistration registration)
-		{
-			if (!DataSettings.DatabaseIsInstalled())
-				return;
-			
-			var implementationType = registration.Activator.LimitType;
-
-			// build an array of actions on this type to assign loggers to member properties
-			var injectors = BuildLoggerInjectors(implementationType).ToArray();
-
-			// if there are no logger properties, there's no reason to hook the activated event
-			if (!injectors.Any())
-				return;
-
-			// otherwise, whan an instance of this component is activated, inject the loggers on the instance
-			registration.Activated += (s, e) =>
-			{
-				foreach (var injector in injectors)
-					injector(e.Context, e.Instance);
-			};
-		}
-
-		private IEnumerable<Action<IComponentContext, object>> BuildLoggerInjectors(Type componentType)
-		{
-			// Look for settable properties of type "ILogger" 
-			var loggerProperties = componentType
-				.GetProperties(BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Instance)
-				.Select(p => new
-				{
-					PropertyInfo = p,
-					p.PropertyType,
-					IndexParameters = p.GetIndexParameters(),
-					Accessors = p.GetAccessors(false)
-				})
-				.Where(x => x.PropertyType == typeof(ILogger)) // must be a logger
-				.Where(x => x.IndexParameters.Count() == 0) // must not be an indexer
-				.Where(x => x.Accessors.Length != 1 || x.Accessors[0].ReturnType == typeof(void)) //must have get/set, or only set
-				.Select(x => new FastProperty(x.PropertyInfo));
-
-			// Return an array of actions that resolve a logger and assign the property
-			foreach (var prop in loggerProperties)
-			{
-				yield return (ctx, instance) =>
-				{
-					string component = componentType.ToString();
-					var logger = ctx.Resolve<ILogger>();
-					prop.SetValue(instance, logger);
-				};
-			}
 		}
 	}
 

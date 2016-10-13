@@ -193,7 +193,8 @@ namespace SmartStore.Admin.Infrastructure
 			Mapper.CreateMap<Category, CategoryModel>()
 				.ForMember(dest => dest.AvailableCategoryTemplates, mo => mo.Ignore())
 				.ForMember(dest => dest.AvailableDefaultViewModes, mo => mo.Ignore())
-				.ForMember(dest => dest.Locales, mo => mo.Ignore())
+                .ForMember(dest => dest.AvailableBadgeStyles, mo => mo.Ignore())
+                .ForMember(dest => dest.Locales, mo => mo.Ignore())
 				.ForMember(dest => dest.Breadcrumb, mo => mo.Ignore())
 				.ForMember(dest => dest.ParentCategoryBreadcrumb, mo => mo.Ignore())
 				.ForMember(dest => dest.AvailableDiscounts, mo => mo.Ignore())
@@ -314,11 +315,9 @@ namespace SmartStore.Admin.Infrastructure
             Mapper.CreateMap<Log, LogModel>()
                 .ForMember(dest => dest.CustomerEmail, mo => mo.Ignore())
                 .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())
-				.ForMember(dest => dest.UpdatedOn, mo => mo.Ignore())
 				.ForMember(dest => dest.LogLevelHint, mo => mo.Ignore());
             Mapper.CreateMap<LogModel, Log>()
                 .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
-				.ForMember(dest => dest.UpdatedOnUtc, mo => mo.Ignore())
                 .ForMember(dest => dest.LogLevelId, mo => mo.Ignore())
                 .ForMember(dest => dest.Customer, mo => mo.Ignore());
             //ActivityLogType

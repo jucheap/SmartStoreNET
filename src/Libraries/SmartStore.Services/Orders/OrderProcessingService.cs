@@ -217,7 +217,7 @@ namespace SmartStore.Services.Orders
 				var msg = string.Concat(T(messageKey, order.GetOrderNumber()), " ", string.Join(" ", errors));
 
 				_orderService.AddOrderNote(order, msg);
-				_logger.InsertLog(LogLevel.Error, msg, msg);
+				_logger.Error(msg);
 			}
 		}
 
@@ -1426,10 +1426,10 @@ namespace SmartStore.Services.Orders
 					}
                 }
             }
-            catch (Exception exc)
+            catch (Exception ex)
             {
-                _logger.Error(exc.Message, exc);
-                result.AddError(exc.Message);
+                _logger.Error(ex);
+                result.AddError(ex.Message);
             }
 
 			if (result.Errors.Count > 0)
@@ -2561,7 +2561,7 @@ namespace SmartStore.Services.Orders
 
 		public virtual Shipment AddShipment(Order order, string trackingNumber, Dictionary<int, int> quantities)
 		{
-			Guard.ArgumentNotNull(() => order);
+			Guard.NotNull(order, nameof(order));
 
 			Shipment shipment = null;
 			decimal? totalWeight = null;

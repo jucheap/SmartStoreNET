@@ -141,7 +141,7 @@ namespace SmartStore.Services.Media
 					}
 					catch (Exception exception)
 					{
-						_logger.Error("Error reading media file '{0}'.".FormatInvariant(source), exception);
+						_logger.ErrorFormat(exception, "Error reading media file '{0}'.", source);
 						return string.Empty;
 					}
 
@@ -151,7 +151,7 @@ namespace SmartStore.Services.Media
 					}
 					catch (Exception exception)
 					{
-						_logger.Error("Error processing/writing media file '{0}'.".FormatInvariant(cachedImage.Path), exception);
+						_logger.ErrorFormat(exception, "Error processing/writing media file '{0}'.", cachedImage.Path);
 						return string.Empty;
 					}
 				}
@@ -210,7 +210,7 @@ namespace SmartStore.Services.Media
 				}
 				catch (Exception exception)
 				{
-					_logger.Error("Error reading media file '{0}'.".FormatInvariant(source), exception);
+					_logger.ErrorFormat(exception, "Error reading media file '{0}'.", source);
 					return string.Empty;
 				}
 
@@ -220,7 +220,7 @@ namespace SmartStore.Services.Media
 				}
 				catch (Exception exception)
 				{
-					_logger.Error("Error processing/writing media file '{0}'.".FormatInvariant(cachedImage.Path), exception);
+					_logger.ErrorFormat(exception, "Error processing/writing media file '{0}'.", cachedImage.Path);
 					return string.Empty;
 				}
 			}
@@ -500,30 +500,34 @@ namespace SmartStore.Services.Media
 
 		public virtual Multimap<int, Picture> GetPicturesByProductIds(int[] productIds, int? maxPicturesPerProduct = 1)
 		{
-			Guard.NotEmpty(productIds, nameof(productIds));
+			Guard.NotNull(productIds, nameof(productIds));
+
 			if (maxPicturesPerProduct.HasValue)
 			{
 				Guard.IsPositive(maxPicturesPerProduct.Value, nameof(maxPicturesPerProduct));
 			}
 
-			int take = maxPicturesPerProduct ?? int.MaxValue;
-
-			var query = from pp in _productPictureRepository.TableUntracked
-						where productIds.Contains(pp.ProductId)
-						group pp by pp.ProductId into g
-						select new
-						{
-							ProductId = g.Key,
-							Pictures = g.OrderBy(x => x.DisplayOrder).Take(take).Select(x => x.Picture)
-						};
-
-			var result = query.ToList();
-
 			var map = new Multimap<int, Picture>();
-			
-			foreach (var ppm in result)
+
+			if (productIds.Any())
 			{
-				map.AddRange(ppm.ProductId, ppm.Pictures);
+				int take = maxPicturesPerProduct ?? int.MaxValue;
+
+				var query = from pp in _productPictureRepository.TableUntracked
+							where productIds.Contains(pp.ProductId)
+							group pp by pp.ProductId into g
+							select new
+							{
+								ProductId = g.Key,
+								Pictures = g.OrderBy(x => x.DisplayOrder).Take(take).Select(x => x.Picture)
+							};
+
+				var result = query.ToList();
+
+				foreach (var ppm in result)
+				{
+					map.AddRange(ppm.ProductId, ppm.Pictures);
+				}
 			}
 
 			return map;

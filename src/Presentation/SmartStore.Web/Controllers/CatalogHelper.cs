@@ -1512,6 +1512,7 @@ namespace SmartStore.Web.Controllers
 		public NavigationModel PrepareCategoryNavigationModel(int currentCategoryId, int currentProductId)
 		{
 			var root = GetCategoryMenu();
+		
 			var breadcrumb = GetCategoryBreadCrumb(currentCategoryId, currentProductId);
 
 			// resolve number of products
@@ -1570,9 +1571,9 @@ namespace SmartStore.Web.Controllers
 					curNode = curNode.Parent;
 				}
 			}
-			catch (Exception exc)
+			catch (Exception ex)
 			{
-				Logger.Error(exc.Message, exc);
+				Logger.Error(ex);
 			}
 		}
 
@@ -1602,7 +1603,9 @@ namespace SmartStore.Web.Controllers
 					{
 						EntityId = category.Id,
 						Text = category.GetLocalized(x => x.Name),
-						RouteName = "Category"
+                        BadgeText = category.GetLocalized(x => x.BadgeText),
+                        BadgeStyle = (BadgeStyle)category.BadgeStyle,
+                        RouteName = "Category"
 					};
 					menuItem.RouteValues.Add("SeName", category.GetSeName());
 

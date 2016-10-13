@@ -1,12 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using SmartStore.Core.Domain.Localization;
+using SmartStore.Core.Search.Facets;
 
 namespace SmartStore.Core.Search
 {
-	public class SearchQuery : SearchQueryBase<SearchQuery>
+	public class SearchQuery : SearchQuery<SearchQuery>
 	{
 		/// <summary>
 		/// Initializes a new instance of the <see cref="SearchQuery"/> class without a search term being set
@@ -16,49 +15,84 @@ namespace SmartStore.Core.Search
 		{
 		}
 
-		public SearchQuery(string field, string term, bool escape = false, bool isFuzzySearch = false)
-			: base(new[] { field }, term, escape, isFuzzySearch)
+		public SearchQuery(string field, string term, bool escape = false, bool isExactMatch = false, bool isFuzzySearch = false)
+			: base(field.HasValue() ? new[] { field } : null, term, escape, isExactMatch, isFuzzySearch)
 		{
 		}
 
-		public SearchQuery(string[] fields, string term, bool escape = false, bool isFuzzySearch = false)
-			: base(fields, term, escape, isFuzzySearch)
+		public SearchQuery(string[] fields, string term, bool escape = false, bool isExactMatch = false, bool isFuzzySearch = false)
+			: base(fields, term, escape, isExactMatch, isFuzzySearch)
 		{
 		}
 	}
 
-	public class SearchQueryBase<TQuery> where TQuery : SearchQuery
+	public class SearchQuery<TQuery> : ISearchQuery where TQuery : class, ISearchQuery
 	{
-		protected SearchQueryBase(string[] fields, string term, bool escape = false, bool isFuzzySearch = false)
+		private readonly Dictionary<string, FacetDescriptor> _facetDescriptors;
+
+		protected SearchQuery(string[] fields, string term, bool escape = false, bool isExactMatch = false, bool isFuzzySearch = false)
 		{
 			Fields = fields;
 			Term = term;
 			EscapeTerm = escape;
+			IsExactMatch = IsExactMatch;
 			IsFuzzySearch = isFuzzySearch;
 
-			Filters = new List<SearchFilter>();
+			Filters = new List<ISearchFilter>();
 			Sorting = new List<SearchSort>();
+			_facetDescriptors = new Dictionary<string, FacetDescriptor>(StringComparer.OrdinalIgnoreCase);
 
-			Take = Int16.MaxValue;
+			Take = int.MaxValue;
 		}
+
+		// Language
+		public int? LanguageId { get; protected set; }
+		public string LanguageSeoCode { get; protected set; }
 
 		// Search term
 		public string[] Fields { get; protected set; }
 		public string Term { get; protected set; }
 		public bool EscapeTerm { get; protected set; }
+		public bool IsExactMatch { get; protected set; }
 		public bool IsFuzzySearch { get; protected set; }
 
 		// Filtering
-		public ICollection<SearchFilter> Filters { get; }
+		public ICollection<ISearchFilter> Filters { get; }
+
+		// Facets
+		public IReadOnlyDictionary<string, FacetDescriptor> FacetDescriptors
+		{
+			get
+			{
+				return _facetDescriptors;
+			}
+		}
 
 		// Paging
 		public int Skip { get; protected set; }
 		public int Take { get; protected set; }
+		public int PageIndex
+		{
+			get
+			{
+				return Math.Max((Skip - 1) / Take, 0);
+			}
+		}
 
-		// sorting
+		// Sorting
 		public ICollection<SearchSort> Sorting { get; }
 
 		#region Fluent builder
+
+		public TQuery WithLanguage(Language language)
+		{
+			Guard.NotNull(language, nameof(language));
+
+			LanguageId = language.Id;
+			LanguageSeoCode = language.UniqueSeoCode.EmptyNull().ToLower();
+
+			return (this as TQuery);
+		}
 
 		public TQuery Slice(int skip, int take)
 		{
@@ -71,7 +105,7 @@ namespace SmartStore.Core.Search
 			return (this as TQuery);
 		}
 
-		public TQuery WithFilter(SearchFilter filter)
+		public TQuery WithFilter(ISearchFilter filter)
 		{
 			Guard.NotNull(filter, nameof(filter));
 
@@ -85,6 +119,20 @@ namespace SmartStore.Core.Search
 			Guard.NotNull(sort, nameof(sort));
 
 			Sorting.Add(sort);
+
+			return (this as TQuery);
+		}
+
+		public TQuery AddFacetDescriptor(FacetDescriptor facetDescription)
+		{
+			Guard.NotNull(facetDescription, nameof(facetDescription));
+
+			if (_facetDescriptors.ContainsKey(facetDescription.Key))
+			{
+				throw new InvalidOperationException("A facet description object with the same key has already been added. Key: {0}".FormatInvariant(facetDescription.Key));
+			}
+
+			_facetDescriptors.Add(facetDescription.Key, facetDescription);
 
 			return (this as TQuery);
 		}

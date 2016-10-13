@@ -10,7 +10,11 @@
 * REDIS providers for Business Cache, Output Cache and Session State (commercial plugin)
 * Microsoft AZURE provider for media storage (commercial plugin)
 * Message Bus for inter-process messaging between servers (commercial plugin)
-* Configurable media storage path for web farms 
+* Configurable media storage path for web farms
+* (Dev) log4net integration
+* XML Sitemap optimized for very large catalogs:
+	* Partitions for very large sitemaps (> 50.000 nodes or > 10 MB)
+	* Generated in a background task. No instant invalidation anymore.
 * Added option to skip shipping method selection in checkout process when only one shipping method is active
 * Added options to capture salutation and title in addresses and customer info
 * Added projection to control the export of individually visible associated products
@@ -20,11 +24,14 @@
 * #724 Allow discounts to be applied to manufacturers
 
 ### Improvements
+* Updated .NET Target Framework from 4.5.1 to 4.5.2
 * Added order message token for accepting third party email handover
 * ECB currency exchange rate provider now cross calculates rates based on euro rates
 * BeezUP: Exports the product weight
 * Payone: Replace client API by Payone iFrame solution. Allows credit card payment compliant with PCI DSS, SAQ A.
 * Updated Elmar shop info XML from version 1.1 to 2.0
+* (Perf) Application start faster by ~20%
+* (Perf) Lower memory consumption
 * #1008 Export: Add support for description projection to all product exporting providers
 * #1015 Implement Entity Picker in discount requirements
 
@@ -38,6 +45,10 @@
 * Awarded reward points for a placed order sometimes wrong calculated
 * PayPal PLUS: A changed shipping address/costs was not transmitted to PayPal
 * Bundle item cannot be deleted if it's in a shopping cart
+* #1030: Order export: does not export the data of the attribute combination
+* Order export does not export shipping address
+* Filter shows wrong number of products if "Include products from subcategories" is activated
+* Guest user cannot be deleted if he has a private message
 
 
 ## SmartStore.NET 2.6

@@ -10,15 +10,15 @@ namespace SmartStore.Core.IO
 	public class VirtualFolder : IVirtualFolder
 	{
 		private readonly IVirtualPathProvider _vpp;
-		private readonly Work<ILogger> _logger;
+		private readonly ILogger _logger;
 		private readonly string _root;
 
 		public VirtualFolder(string root, IVirtualPathProvider vpp)
-			: this(root, vpp, new Work<ILogger>(x => NullLogger.Instance))
+			: this(root, vpp, NullLogger.Instance)
 		{
 		}
 
-		public VirtualFolder(string root, IVirtualPathProvider vpp, Work<ILogger> logger)
+		public VirtualFolder(string root, IVirtualPathProvider vpp, ILogger logger)
 		{
 			Guard.NotEmpty(root, nameof(root));
 			Guard.NotNull(vpp, nameof(vpp));
@@ -191,6 +191,13 @@ namespace SmartStore.Core.IO
 
 		public string GetVirtualPath(string relativePath)
 		{
+			Guard.NotNull(relativePath, nameof(relativePath));
+
+			if (relativePath.StartsWith("~/"))
+			{
+				return relativePath;
+			}
+
 			return _root + relativePath.EmptyNull().Replace(Path.DirectorySeparatorChar, '/').TrimStart('/');
 		}
 	}

@@ -23,6 +23,11 @@ namespace SmartStore.Services.DataExchange.Export
 		}
 
 		/// <summary>
+		/// Identifier of the export profile
+		/// </summary>
+		public int ProfileId { get; internal set; }
+
+		/// <summary>
 		/// Provides the data to be exported
 		/// </summary>
 		public IExportDataSegmenterConsumer DataSegmenter { get; set; }
@@ -153,7 +158,7 @@ namespace SmartStore.Services.DataExchange.Export
 		{
 			++RecordsFailed;
 
-			Log.Error("Error while processing record with id {0}: {1}".FormatInvariant(entityId, exception.ToAllMessages()), exception);
+			Log.ErrorFormat(exception, "Error while processing record with id {0}", entityId);
 
 			if (IsMaxFailures)
 				_result.LastError = exception.ToString();

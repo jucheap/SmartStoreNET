@@ -1,17 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
-using System.Data.Entity.Infrastructure;
 using System.Data.Entity.Migrations;
 using System.Data.Entity.Migrations.Infrastructure;
 using System.Linq;
-using System.Text.RegularExpressions;
 using SmartStore.Core.Infrastructure;
 using SmartStore.Core.Logging;
 
 namespace SmartStore.Data.Setup
 {
-	
 	/// <summary>
 	/// Provides advanced migrations by providing a seeding platform for each migration.
 	/// This allows for initial seed data after each new database version (for example when 
@@ -39,7 +36,7 @@ namespace SmartStore.Data.Setup
 				{
 					try
 					{
-						_logger = EngineContext.Current.Resolve<ILogger>();
+						_logger = EngineContext.Current.Resolve<ILoggerFactory>().GetLogger(this.GetType());
 					}
 					catch
 					{
@@ -148,7 +145,7 @@ namespace SmartStore.Data.Setup
 			// Apply external data seeders
 			RunSeeders<TContext>(externalSeeders, context);
 
-			Logger.Information("Database migration successful: {0} >> {1}".FormatInvariant(initialMigration, lastSuccessfulMigration));
+			Logger.Info("Database migration successful: {0} >> {1}".FormatInvariant(initialMigration, lastSuccessfulMigration));
 
 			return result;
 		}
@@ -171,14 +168,14 @@ namespace SmartStore.Data.Setup
 						throw new DbMigrationException(seederEntry.PreviousMigrationId, seederEntry.MigrationId, ex.InnerException ?? ex, true);
 					}
 
-					Logger.Warning("Seed error in migration '{0}'. The error was ignored because no rollback was requested.".FormatInvariant(seederEntry.MigrationId), ex);
+					Logger.WarnFormat(ex, "Seed error in migration '{0}'. The error was ignored because no rollback was requested.", seederEntry.MigrationId);
 				}
 			}
 		}
 
 		private void LogError(string initialMigration, string targetMigration, Exception exception)
 		{
-			Logger.Error("Database migration error: {0} >> {1}".FormatInvariant(initialMigration, targetMigration), exception);
+			Logger.ErrorFormat(exception, "Database migration error: {0} >> {1}", initialMigration, targetMigration);
 		}
 
 		private class SeederEntry
