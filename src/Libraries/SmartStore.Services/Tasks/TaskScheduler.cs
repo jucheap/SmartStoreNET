@@ -16,7 +16,7 @@ namespace SmartStore.Services.Tasks
 {
 	public class DefaultTaskScheduler : DisposableObject, ITaskScheduler, IRegisteredObject
     {
-		private readonly ILogger _logger;
+		private readonly ICacheManager _cache;
 
 		private bool _intervalFixed;
 		private int _sweepInterval;
@@ -25,16 +25,23 @@ namespace SmartStore.Services.Tasks
         private bool _shuttingDown;
 		private int _errCount;
 
-        public DefaultTaskScheduler(ILogger logger)
+        public DefaultTaskScheduler(ICacheManager cache)
         {
-			_logger = logger;
+			_cache = cache;
 
 			_sweepInterval = 1;
 			_timer = new System.Timers.Timer();
             _timer.Elapsed += Elapsed;
 
+			Logger = NullLogger.Instance;
             HostingEnvironment.RegisterObject(this);
         }
+
+		public ILogger Logger
+		{
+			get;
+			set;
+		}
 
 		public int SweepIntervalMinutes
         {
@@ -89,18 +96,16 @@ namespace SmartStore.Services.Tasks
             get { return _timer.Enabled; }
         }
 
-		public CancellationTokenSource GetCancelTokenSourceFor(int scheduleTaskId)
+		public string GetAsyncStateKey(int scheduleTaskId)
 		{
-			var cts = AsyncState.Current.GetCancelTokenSource<ScheduleTask>(scheduleTaskId.ToString());
-			return cts;
+			return scheduleTaskId.ToString();
 		}
 
 		private string CreateAuthToken()
 		{
 			string authToken = Guid.NewGuid().ToString();
 
-			var cacheManager = EngineContext.Current.Resolve<ICacheManager>();
-			cacheManager.Put(GenerateAuthTokenCacheKey(authToken), true, TimeSpan.FromMinutes(1));
+			_cache.Put(GenerateAuthTokenCacheKey(authToken), true, TimeSpan.FromMinutes(1));
 
 			return authToken;
 		}
@@ -115,11 +120,10 @@ namespace SmartStore.Services.Tasks
             if (authToken.IsEmpty())
                 return false;
 
-			var cacheManager = EngineContext.Current.Resolve<ICacheManager>();
 			var cacheKey = GenerateAuthTokenCacheKey(authToken);
-			if (cacheManager.Contains(cacheKey))
+			if (_cache.Contains(cacheKey))
 			{
-				cacheManager.Remove(cacheKey);
+				_cache.Remove(cacheKey);
 				return true;
 			}
 
@@ -128,14 +132,14 @@ namespace SmartStore.Services.Tasks
 
         public void RunSingleTask(int scheduleTaskId, IDictionary<string, string> taskParameters = null)
         {
-			string query = "";
+			taskParameters = taskParameters ?? new Dictionary<string, string>();
 
-			if (taskParameters != null && taskParameters.Any())
-			{
-                var qs = new QueryString();
-				taskParameters.Each(x => qs.Add(x.Key, x.Value));
-				query = qs.ToString();
-			}
+			// User executes task in backend explicitly
+			taskParameters["Explicit"] = "true";
+
+            var qs = new QueryString();
+			taskParameters.Each(x => qs.Add(x.Key, x.Value));
+			var query = qs.ToString();
 
 			CallEndpoint(new Uri("{0}/Execute/{1}{2}".FormatInvariant(_baseUrl, scheduleTaskId, query)));
         }
@@ -188,7 +192,7 @@ namespace SmartStore.Services.Tasks
 					{
 						// 10 failed attempts in succession. Stop the timer!
 						this.Stop();
-						_logger.Info("Stopping TaskScheduler sweep timer. Too many failed requests in succession.");
+						Logger.Info("Stopping TaskScheduler sweep timer. Too many failed requests in succession.");
 					}
 				}
 				else
@@ -210,11 +214,11 @@ namespace SmartStore.Services.Tasks
 
 			if (wex == null)
 			{
-				_logger.Error(exception.InnerException, msg);
+				Logger.Error(exception.InnerException, msg);
 			}
 			else if (wex.Response == null)
 			{
-				_logger.Error(wex, msg);
+				Logger.Error(wex, msg);
 			}
 			else
 			{
@@ -222,9 +226,15 @@ namespace SmartStore.Services.Tasks
 				{
 					if (response != null)
 					{
-						msg += " HTTP {0}, {1}".FormatCurrent((int)response.StatusCode, response.StatusDescription);
+						var statusCode = (int)response.StatusCode;
+						if (statusCode < 500)
+						{
+							// Any internal server error (>= 500) already handled by TaskSchedulerController's exception filter
+							msg += " HTTP {0}, {1}".FormatCurrent(statusCode, response.StatusDescription);
+							Logger.Error(msg);
+						}
 					}
-					_logger.Error(msg);
+					
 				}
 			}
 		}
@@ -251,5 +261,4 @@ namespace SmartStore.Services.Tasks
             HostingEnvironment.UnregisterObject(this); 
         }
     }
-
 }

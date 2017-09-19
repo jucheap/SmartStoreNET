@@ -95,7 +95,9 @@ namespace SmartStore.Core.Infrastructure
 			// Logging dependencies should be available very early
 			builder.RegisterModule(new LoggingModule());
 
+#pragma warning disable 612, 618
 			builder.Update(container);
+#pragma warning restore 612, 618
 
 			// Propagate logger
 			var logger = container.Resolve<ILoggerFactory>().GetLogger("SmartStore.Bootstrapper");
@@ -120,13 +122,15 @@ namespace SmartStore.Core.Infrastructure
 				registrar.Register(builder, typeFinder, PluginManager.IsActivePluginAssembly(type.Assembly));
 			}
 
+#pragma warning disable 612, 618
 			builder.Update(container);
+#pragma warning restore 612, 618
 
 			return _containerManager;
 		}
         
         /// <summary>
-        /// Initialize components and plugins in the sm environment.
+        /// Initialize components and plugins
         /// </summary>
         public void Initialize()
         {
@@ -138,7 +142,13 @@ namespace SmartStore.Core.Infrastructure
 			}
         }
 
-        public T Resolve<T>(string name = null) where T : class
+		public bool IsFullyInitialized
+		{
+			get;
+			set;
+		}
+
+		public T Resolve<T>(string name = null) where T : class
 		{
             if (name.HasValue())
             {

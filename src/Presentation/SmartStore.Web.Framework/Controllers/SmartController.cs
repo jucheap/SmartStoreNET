@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Text;
 using System.Web;
 using System.Web.Mvc;
 using SmartStore.Core.Localization;
@@ -7,7 +6,6 @@ using SmartStore.Core.Logging;
 using SmartStore.Services;
 using SmartStore.Web.Framework.Filters;
 using SmartStore.Web.Framework.Localization;
-using SmartStore.Web.Framework.Modelling;
 
 namespace SmartStore.Web.Framework.Controllers
 {
@@ -176,15 +174,6 @@ namespace SmartStore.Web.Framework.Controllers
 			}
 
 			return HttpNotFound();
-		}
-
-		protected virtual ActionResult RedirectToHomePageWithError(string reason, bool durable = true)
-		{
-			string message = T("Common.RequestProcessingFailed", this.RouteData.Values["controller"], this.RouteData.Values["action"], reason.NaIfEmpty());
-
-			Services.Notifier.Error(message, durable);
-
-			return RedirectToRoute("HomePage");
 		}
 
 		/// <summary>

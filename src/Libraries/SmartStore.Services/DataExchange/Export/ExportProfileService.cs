@@ -149,7 +149,8 @@ namespace SmartStore.Services.DataExchange.Export
 				.ToValidPath()
 				.Truncate(_dataExchangeSettings.MaxFileNameLength);
 
-			profile.FolderName = "~/App_Data/ExportProfiles/" + FileSystemHelper.CreateNonExistingDirectoryName(CommonHelper.MapPath("~/App_Data/ExportProfiles"), folderName);
+			var path = DataSettings.Current.TenantPath + "/ExportProfiles";
+			profile.FolderName = path + "/" + FileSystemHelper.CreateNonExistingDirectoryName(CommonHelper.MapPath(path), folderName);
 
 			if (profileSystemName.IsEmpty() && isSystemProfile)
 				profile.SystemName = cleanedSystemName;
@@ -224,6 +225,11 @@ namespace SmartStore.Services.DataExchange.Export
 				throw new ArgumentNullException("profile");
 
 			profile.FolderName = FileSystemHelper.ValidateRootPath(profile.FolderName);
+
+			if (profile.FolderName == "~/")
+			{
+				throw new SmartException("Invalid export folder name.");
+			}
 
 			_exportProfileRepository.Update(profile);
 
@@ -347,6 +353,11 @@ namespace SmartStore.Services.DataExchange.Export
 		{
 			if (deployment == null)
 				throw new ArgumentNullException("deployment");
+
+			if (deployment.DeploymentType == ExportDeploymentType.FileSystem && deployment.FileSystemPath == "~/")
+			{
+				throw new SmartException("Invalid deployment path.");
+			}
 
 			_exportDeploymentRepository.Update(deployment);
 

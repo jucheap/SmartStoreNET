@@ -62,14 +62,12 @@ namespace SmartStore.Admin.Controllers
 
         [NonAction]
         public string GetRequirementUrlInternal(IDiscountRequirementRule discountRequirementRule, Discount discount, int? discountRequirementId)
-        {   
-            if (discountRequirementRule == null)
-                throw new ArgumentNullException("discountRequirementRule");
-
-            if (discount == null)
-                throw new ArgumentNullException("discount");
+        {
+			Guard.NotNull(discountRequirementRule, nameof(discountRequirementRule));
+			Guard.NotNull(discount, nameof(discount));
 
             string url = string.Format("{0}{1}", _services.WebHelper.GetStoreLocation(), discountRequirementRule.GetConfigurationUrl(discount.Id, discountRequirementId));
+
             return url;
         }
         
@@ -165,7 +163,7 @@ namespace SmartStore.Admin.Controllers
 			{
 				var discounts = _discountService.GetAllDiscounts(null, null, true);
 
-				model.Data = discounts.Select(x => x.ToModel());
+				model.Data = discounts.Select(x => x.ToModel()).ToList();
 				model.Total = discounts.Count();
 			}
 			else
@@ -404,7 +402,7 @@ namespace SmartStore.Admin.Controllers
 					DiscountId = x.DiscountId,
 					OrderId = x.OrderId,
 					CreatedOn = _dateTimeHelper.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
-				});
+				}).ToList();
 
 				model.Total = discountHistories.TotalCount;
 			}

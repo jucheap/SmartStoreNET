@@ -634,7 +634,7 @@ namespace SmartStore.Admin.Controllers
 					if (provider != null && !provider.Metadata.IsHidden)
 					{
 						var model = CreateFileDetailsModel(profile, provider, null);
-						return Json(this.RenderPartialViewToString("ProfileFileCount", model.FileCount), JsonRequestBehavior.AllowGet);
+						return Json(this.RenderPartialViewToString("~/Administration/Views/Export/ProfileFileCount.cshtml", model.FileCount), JsonRequestBehavior.AllowGet);
 					}
 				}
 			}
@@ -1151,8 +1151,11 @@ namespace SmartStore.Admin.Controllers
 			if (provider == null || provider.Metadata.IsHidden)
 				return RedirectToAction("List");
 
-			var taskParams = new Dictionary<string, string>();
-			taskParams.Add(TaskExecutor.CurrentCustomerIdParamName, Services.WorkContext.CurrentCustomer.Id.ToString());
+			var taskParams = new Dictionary<string, string>
+			{
+				{ TaskExecutor.CurrentCustomerIdParamName, Services.WorkContext.CurrentCustomer.Id.ToString() },
+				{ TaskExecutor.CurrentStoreIdParamName, Services.StoreContext.CurrentStore.Id.ToString() }
+			};
 
 			if (selectedIds.HasValue())
 				taskParams.Add("SelectedIds", selectedIds);

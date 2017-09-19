@@ -303,6 +303,7 @@ Kopie von*
 /src/Presentation/SmartStore.Web/App_Data/InstalledPlugins.txt
 /src/Presentation/SmartStore.Web/App_Data/Licenses.lic
 /src/Presentation/SmartStore.Web/Media
+/src/**/App_Data/Tenants/
 
 # Import/Export
 /src/Presentation/SmartStore.Web/Content/files/[Ee]xport[Ii]mport/*.*

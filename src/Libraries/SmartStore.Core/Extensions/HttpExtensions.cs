@@ -10,22 +10,26 @@ using System.Web.Caching;
 using System.Web.Security;
 using SmartStore.Core.Infrastructure;
 using SmartStore.Core;
+using System.Web.Mvc;
 
 namespace SmartStore
 {  
     public static class HttpExtensions
     {
         private const string HTTP_CLUSTER_VAR = "HTTP_CLUSTER_HTTPS";
-        
-        /// <summary>
-        /// Gets a value which indicates whether the HTTP connection uses secure sockets (HTTPS protocol). 
-        /// Works with Cloud's load balancers.
-        /// </summary>
-        /// <param name="request"></param>
-        /// <returns></returns>
-        public static bool IsSecureConnection(this HttpRequestBase request)
+		private const string HTTP_XFWDPROTO_VAR = "HTTP_X_FORWARDED_PROTO";
+
+		/// <summary>
+		/// Gets a value which indicates whether the HTTP connection uses secure sockets (HTTPS protocol). 
+		/// Works with Cloud's load balancers.
+		/// </summary>
+		/// <param name="request"></param>
+		/// <returns></returns>
+		public static bool IsSecureConnection(this HttpRequestBase request)
         {
-            return (request.IsSecureConnection || (request.ServerVariables[HTTP_CLUSTER_VAR] != null || request.ServerVariables[HTTP_CLUSTER_VAR] == "on"));
+            return (request.IsSecureConnection
+				|| (request.ServerVariables[HTTP_CLUSTER_VAR] != null || request.ServerVariables[HTTP_CLUSTER_VAR] == "on")
+				|| (request.ServerVariables[HTTP_XFWDPROTO_VAR] != null || request.ServerVariables[HTTP_XFWDPROTO_VAR] == "https"));
         }
 
 
@@ -105,14 +109,26 @@ namespace SmartStore
 	    [SuppressMessage("ReSharper", "PossibleNullReferenceException")]
 	    public static void SetFormsAuthenticationCookie(this HttpWebRequest webRequest, HttpRequestBase httpRequest)
 		{
-			Guard.NotNull(webRequest, nameof(webRequest));
-			Guard.NotNull(httpRequest, nameof(httpRequest));
+			CopyCookie(webRequest, httpRequest, FormsAuthentication.FormsCookieName);
+		}
 
-			var authCookie = httpRequest.Cookies[FormsAuthentication.FormsCookieName];
-			if (authCookie == null)
+		[SuppressMessage("ReSharper", "PossibleNullReferenceException")]
+		public static void SetAnonymousIdentCookie(this HttpWebRequest webRequest, HttpRequestBase httpRequest)
+		{
+			CopyCookie(webRequest, httpRequest, "SMARTSTORE.ANONYMOUS"); 
+		}
+
+		private static void CopyCookie(HttpWebRequest webRequest, HttpRequestBase sourceHttpRequest, string cookieName)
+		{
+			Guard.NotNull(webRequest, nameof(webRequest));
+			Guard.NotNull(sourceHttpRequest, nameof(sourceHttpRequest));
+			Guard.NotEmpty(cookieName, nameof(cookieName));
+
+			var sourceCookie = sourceHttpRequest.Cookies[cookieName];
+			if (sourceCookie == null)
 				return;
 
-			var sendCookie = new Cookie(authCookie.Name, authCookie.Value, authCookie.Path, httpRequest.Url.Host);
+			var sendCookie = new Cookie(sourceCookie.Name, sourceCookie.Value, sourceCookie.Path, sourceHttpRequest.Url.Host);
 
 			if (webRequest.CookieContainer == null)
 			{
@@ -152,15 +168,53 @@ namespace SmartStore
 			return value;
 		}
 
+		public static T GetItem<T>(this HttpContext httpContext, string key, Func<T> factory = null, bool forceCreation = true)
+		{
+			if (httpContext?.Items == null)
+			{
+				return default(T);
+			}
+
+			return GetItem<T>(new HttpContextWrapper(httpContext), key, factory, forceCreation);
+		}
+
+		public static T GetItem<T>(this HttpContextBase httpContext, string key, Func<T> factory = null, bool forceCreation = true)
+		{
+			Guard.NotEmpty(key, nameof(key));
+
+			var items = httpContext?.Items;
+			if (items == null)
+			{
+				return default(T);
+			}
+
+			if (items.Contains(key))
+			{
+				return (T)items[key];
+			}
+			else
+			{
+				if (forceCreation)
+				{
+					var item = items[key] = (factory ?? (() => Activator.CreateInstance<T>())).Invoke();
+					return (T)item;
+				}
+				else
+				{
+					return default(T);
+				}
+			}
+		}
+
 		public static void RemoveByPattern(this Cache cache, string pattern)
 		{
 			var regionName = "SmartStoreNET:";
 
-			pattern = pattern == "*" ? "" : pattern;
+			pattern = pattern == "*" ? regionName : pattern;
 
 			var keys = from entry in HttpRuntime.Cache.AsParallel().Cast<DictionaryEntry>()
 					   let key = entry.Key.ToString()
-					   where key.StartsWith(regionName + pattern, StringComparison.OrdinalIgnoreCase)
+					   where key.StartsWith(pattern, StringComparison.OrdinalIgnoreCase)
 					   select key;
 
 			foreach (var key in keys.ToArray())
@@ -168,6 +222,20 @@ namespace SmartStore
 				cache.Remove(key);
 			}
 		}
+
+        public static ControllerContext GetMasterControllerContext(this ControllerContext controllerContext)
+        {
+            Guard.NotNull(controllerContext, nameof(controllerContext));
+
+            var ctx = controllerContext;
+
+            while (ctx.ParentActionViewContext != null)
+            {
+                ctx = ctx.ParentActionViewContext;
+            }
+
+            return ctx;
+        }
 	}
 
 }

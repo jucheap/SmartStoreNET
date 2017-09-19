@@ -37,10 +37,14 @@ namespace SmartStore.Web.Models.ShoppingCart
         public string RedeemedRewardPointsAmount { get; set; }
         public string OrderTotal { get; set; }
         public decimal Weight { get; set; }
+        public string WeightMeasureUnitName { get; set; }
 
-        #region Nested classes
+        public bool ShowConfirmOrderLegalHint { get; set; }
+		public string MinOrderSubtotalWarning { get; set; }
 
-        public partial class TaxRate: ModelBase
+		#region Nested classes
+
+		public partial class TaxRate: ModelBase
         {
             public string Rate { get; set; }
             public string Value { get; set; }

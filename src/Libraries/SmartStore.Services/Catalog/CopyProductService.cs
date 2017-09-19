@@ -1,10 +1,12 @@
 using System;
 using System.Collections.Generic;
+using System.Linq;
 using SmartStore.Core.Data;
 using SmartStore.Core.Domain.Catalog;
 using SmartStore.Core.Domain.Media;
 using SmartStore.Services.Localization;
 using SmartStore.Services.Media;
+using SmartStore.Services.Search;
 using SmartStore.Services.Seo;
 using SmartStore.Services.Stores;
 
@@ -30,33 +32,42 @@ namespace SmartStore.Services.Catalog
         private readonly IUrlRecordService _urlRecordService;
 		private readonly IStoreMappingService _storeMappingService;
 		private readonly ILocalizationService _localizationService;
+		private readonly ICatalogSearchService _catalogSearchService;
 
-        #endregion
+		#endregion
 
-        #region Ctor
+		#region Ctor
 
-        public CopyProductService(IProductService productService,
-            IProductAttributeService productAttributeService, ILanguageService languageService,
-            ILocalizedEntityService localizedEntityService, IPictureService pictureService,
-            ICategoryService categoryService, IManufacturerService manufacturerService,
-            ISpecificationAttributeService specificationAttributeService, IDownloadService downloadService,
-            IProductAttributeParser productAttributeParser, IUrlRecordService urlRecordService,
+		public CopyProductService(
+			IProductService productService,
+            IProductAttributeService productAttributeService,
+			ILanguageService languageService,
+            ILocalizedEntityService localizedEntityService,
+			IPictureService pictureService,
+            ICategoryService categoryService,
+			IManufacturerService manufacturerService,
+            ISpecificationAttributeService specificationAttributeService,
+			IDownloadService downloadService,
+            IProductAttributeParser productAttributeParser,
+			IUrlRecordService urlRecordService,
 			IStoreMappingService storeMappingService,
-			ILocalizationService localizationService)
+			ILocalizationService localizationService,
+			ICatalogSearchService catalogSearchService)
         {
-            this._productService = productService;
-            this._productAttributeService = productAttributeService;
-            this._languageService = languageService;
-            this._localizedEntityService = localizedEntityService;
-            this._pictureService = pictureService;
-            this._categoryService = categoryService;
-            this._manufacturerService = manufacturerService;
-            this._specificationAttributeService = specificationAttributeService;
-            this._downloadService = downloadService;
-            this._productAttributeParser = productAttributeParser;
-			this._urlRecordService = urlRecordService;
-			this._storeMappingService = storeMappingService;
-			this._localizationService = localizationService;
+            _productService = productService;
+            _productAttributeService = productAttributeService;
+            _languageService = languageService;
+            _localizedEntityService = localizedEntityService;
+            _pictureService = pictureService;
+            _categoryService = categoryService;
+            _manufacturerService = manufacturerService;
+            _specificationAttributeService = specificationAttributeService;
+            _downloadService = downloadService;
+            _productAttributeParser = productAttributeParser;
+			_urlRecordService = urlRecordService;
+			_storeMappingService = storeMappingService;
+			_localizationService = localizationService;
+			_catalogSearchService = catalogSearchService;
         }
 
         #endregion
@@ -196,7 +207,8 @@ namespace SmartStore.Services.Catalog
 				AllowBackInStockSubscriptions = product.AllowBackInStockSubscriptions,
 				OrderMinimumQuantity = product.OrderMinimumQuantity,
 				OrderMaximumQuantity = product.OrderMaximumQuantity,
-				AllowedQuantities = product.AllowedQuantities,
+                HideQuantityControl = product.HideQuantityControl,
+                AllowedQuantities = product.AllowedQuantities,
 				DisableBuyButton = product.DisableBuyButton,
 				DisableWishlistButton = product.DisableWishlistButton,
 				AvailableForPreOrder = product.AvailableForPreOrder,
@@ -220,8 +232,6 @@ namespace SmartStore.Services.Catalog
 				DisplayOrder = product.DisplayOrder,
                 Published = isPublished,
                 Deleted = product.Deleted,
-				CreatedOnUtc = utcNow,
-				UpdatedOnUtc = utcNow,
 				DeliveryTimeId = product.DeliveryTimeId,
                 QuantityUnitId = product.QuantityUnitId,
 				BasePriceEnabled = product.BasePriceEnabled,
@@ -231,7 +241,9 @@ namespace SmartStore.Services.Catalog
 				BundleTitleText = product.BundleTitleText,
 				BundlePerItemShipping = product.BundlePerItemShipping,
 				BundlePerItemPricing = product.BundlePerItemPricing,
-				BundlePerItemShoppingCart = product.BundlePerItemShoppingCart
+				BundlePerItemShoppingCart = product.BundlePerItemShoppingCart,
+				CustomsTariffNumber = product.CustomsTariffNumber,
+				CountryOfOriginId = product.CountryOfOriginId
             };
 
             _productService.InsertProduct(productCopy);
@@ -278,6 +290,8 @@ namespace SmartStore.Services.Catalog
             }
 
             // product pictures
+            var newPictureIds = new Dictionary<int, string>();
+
             if (copyImages)
             {
                 foreach (var productPicture in product.ProductPictures)
@@ -297,6 +311,8 @@ namespace SmartStore.Services.Catalog
                         PictureId = pictureCopy.Id,
                         DisplayOrder = productPicture.DisplayOrder
                     });
+
+                    newPictureIds.Add(productPicture.PictureId, pictureCopy.Id.ToString());
                 }
             }
 
@@ -396,11 +412,29 @@ namespace SmartStore.Services.Catalog
 
 				foreach (var productVariantAttributeValue in productVariantAttributeValues)
 				{
-					var pvavCopy = new ProductVariantAttributeValue
+
+                    var newPictureId = 0;
+
+                    if (copyImages)
+                    {
+                        var picture = _pictureService.GetPictureById(productVariantAttributeValue.PictureId);
+                        if (picture != null)
+                        {
+                            var pictureCopy = _pictureService.InsertPicture(
+                            _pictureService.LoadPictureBinary(picture),
+                            picture.MimeType,
+                            _pictureService.GetPictureSeName(newName),
+                            true, false, false);
+
+                            newPictureId = pictureCopy.Id;
+                        }
+                    }
+
+                    var pvavCopy = new ProductVariantAttributeValue
 					{
 						ProductVariantAttributeId = productVariantAttributeCopy.Id,
 						Name = productVariantAttributeValue.Name,
-						ColorSquaresRgb = productVariantAttributeValue.ColorSquaresRgb,
+						Color = productVariantAttributeValue.Color,
 						PriceAdjustment = productVariantAttributeValue.PriceAdjustment,
 						WeightAdjustment = productVariantAttributeValue.WeightAdjustment,
 						IsPreSelected = productVariantAttributeValue.IsPreSelected,
@@ -408,7 +442,8 @@ namespace SmartStore.Services.Catalog
 						ValueTypeId = productVariantAttributeValue.ValueTypeId,
 						LinkedProductId = productVariantAttributeValue.LinkedProductId,
 						Quantity = productVariantAttributeValue.Quantity,
-					};
+                        PictureId = newPictureId
+                    };
 
 					_productAttributeService.InsertProductVariantAttributeValue(pvavCopy);
 
@@ -470,7 +505,17 @@ namespace SmartStore.Services.Catalog
 						}
 					}
 				}
-				var combinationCopy = new ProductVariantAttributeCombination
+
+                var newAssignedPictureIds = new List<string>();
+
+                if(!String.IsNullOrEmpty(combination.AssignedPictureIds))
+                {
+                    combination.AssignedPictureIds.Split(',').Each(x => {
+                        newAssignedPictureIds.Add(newPictureIds[Convert.ToInt32(x)]);
+                    });
+                }
+                
+                var combinationCopy = new ProductVariantAttributeCombination
 				{
 					ProductId = productCopy.Id,
 					AttributesXml = newAttributesXml,
@@ -482,7 +527,7 @@ namespace SmartStore.Services.Catalog
 					Gtin = combination.Gtin,
 					ManufacturerPartNumber = combination.ManufacturerPartNumber,
 					Price = combination.Price,
-					AssignedPictureIds = copyImages ? combination.AssignedPictureIds : null,
+					AssignedPictureIds = copyImages ? String.Join(",", newAssignedPictureIds) : null,
 					Length = combination.Length,
 					Width = combination.Width,
 					Height = combination.Height,
@@ -499,14 +544,16 @@ namespace SmartStore.Services.Catalog
 			// tier prices
 			foreach (var tierPrice in product.TierPrices)
 			{
-				_productService.InsertTierPrice(new TierPrice
-				{
-					ProductId = productCopy.Id,
-					StoreId = tierPrice.StoreId,
-					CustomerRoleId = tierPrice.CustomerRoleId,
-					Quantity = tierPrice.Quantity,
-					Price = tierPrice.Price
-				});
+				_productService.InsertTierPrice(
+					new TierPrice()
+					{
+						ProductId = productCopy.Id,
+						StoreId = tierPrice.StoreId,
+						CustomerRoleId = tierPrice.CustomerRoleId,
+						Quantity = tierPrice.Quantity,
+						Price = tierPrice.Price,
+                        CalculationMethod = tierPrice.CalculationMethod
+					});
 			}
 
 			// product <-> discounts mapping
@@ -524,20 +571,16 @@ namespace SmartStore.Services.Catalog
 			// associated products
 			if (copyAssociatedProducts && product.ProductType != ProductType.BundledProduct)
 			{
-				var searchContext = new ProductSearchContext
-				{
-					OrderBy = ProductSortingEnum.Position,
-					ParentGroupedProductId = product.Id,
-					PageSize = int.MaxValue,
-					ShowHidden = true
-				};
+				var copyOf = _localizationService.GetResource("Admin.Common.CopyOf");
+				var searchQuery = new CatalogSearchQuery()
+					.HasParentGroupedProduct(product.Id);
 
-				string copyOf = _localizationService.GetResource("Admin.Common.CopyOf");
-				var associatedProducts = _productService.SearchProducts(searchContext);
+				var query = _catalogSearchService.PrepareQuery(searchQuery);
+				var associatedProducts = query.OrderBy(p => p.DisplayOrder).ToList();
 
 				foreach (var associatedProduct in associatedProducts)
 				{
-					var associatedProductCopy = CopyProduct(associatedProduct, string.Format("{0} {1}", copyOf, associatedProduct.Name), isPublished, copyImages, false);
+					var associatedProductCopy = CopyProduct(associatedProduct, $"{copyOf} {associatedProduct.Name}", isPublished, copyImages, false);
 					associatedProductCopy.ParentGroupedProductId = productCopy.Id;
 
 					_productService.UpdateProduct(productCopy);
@@ -551,8 +594,6 @@ namespace SmartStore.Services.Catalog
 			{
 				var newBundleItem = bundleItem.Item.Clone();
 				newBundleItem.BundleProductId = productCopy.Id;
-				newBundleItem.CreatedOnUtc = utcNow;
-				newBundleItem.UpdatedOnUtc = utcNow;
 
 				_productService.InsertBundleItem(newBundleItem);
 

@@ -6,6 +6,7 @@ using System.Data.Entity.Migrations.Infrastructure;
 using System.Linq;
 using SmartStore.Core.Infrastructure;
 using SmartStore.Core.Logging;
+using SmartStore.Data.Migrations;
 
 namespace SmartStore.Data.Setup
 {
@@ -18,6 +19,15 @@ namespace SmartStore.Data.Setup
 	public class DbSeedingMigrator<TContext> : DbMigrator where TContext : DbContext
 	{
 		private ILogger _logger;
+		private static bool _isMigrating;
+
+		/// <summary>
+		/// Initializes a new instance of the DbMigrator class with the default (core db) configuration.
+		/// </summary>
+		public DbSeedingMigrator()
+			: this(new MigrationsConfiguration())
+		{
+		}
 
 		/// <summary>
 		/// Initializes a new instance of the DbMigrator class.
@@ -48,6 +58,14 @@ namespace SmartStore.Data.Setup
 			}
 		}
 
+		public static bool IsMigrating
+		{
+			get
+			{
+				return _isMigrating;
+			}
+		}
+
 		/// <summary>
 		/// Migrates the database to the latest version
 		/// </summary>
@@ -57,7 +75,7 @@ namespace SmartStore.Data.Setup
 			var pendingMigrations = GetPendingMigrations().ToList();
 			if (!pendingMigrations.Any())
 				return 0;
-			
+		
 			var coreSeeders = new List<SeederEntry>();
 			var externalSeeders = new List<SeederEntry>();
 			var isCoreMigration = context is SmartObjectContext;
@@ -68,6 +86,7 @@ namespace SmartStore.Data.Setup
 			IDataSeeder<TContext> externalSeeder = null;
 
 			int result = 0;
+			_isMigrating = true;
 
 			// Apply migrations
 			foreach (var migrationId in pendingMigrations)
@@ -103,6 +122,7 @@ namespace SmartStore.Data.Setup
 				{
 					if (context is SmartObjectContext)
 					{
+						_isMigrating = false;
 						throw;
 					}
 
@@ -114,6 +134,7 @@ namespace SmartStore.Data.Setup
 				catch (Exception ex)
 				{
 					result = 0;
+					_isMigrating = false;
 					throw new DbMigrationException(lastSuccessfulMigration, migrationId, ex.InnerException ?? ex, false);
 				}
 
@@ -145,6 +166,8 @@ namespace SmartStore.Data.Setup
 			// Apply external data seeders
 			RunSeeders<TContext>(externalSeeders, context);
 
+			_isMigrating = false;
+
 			Logger.Info("Database migration successful: {0} >> {1}".FormatInvariant(initialMigration, lastSuccessfulMigration));
 
 			return result;
@@ -165,6 +188,7 @@ namespace SmartStore.Data.Setup
 					if (seeder.RollbackOnFailure)
 					{
 						Update(seederEntry.PreviousMigrationId);
+						_isMigrating = false;
 						throw new DbMigrationException(seederEntry.PreviousMigrationId, seederEntry.MigrationId, ex.InnerException ?? ex, true);
 					}
 

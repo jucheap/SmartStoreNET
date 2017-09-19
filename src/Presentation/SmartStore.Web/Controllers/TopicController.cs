@@ -58,7 +58,6 @@ namespace SmartStore.Web.Controllers
             {
                 Id = topic.Id,
                 SystemName = topic.SystemName,
-                IncludeInSitemap = topic.IncludeInSitemap,
                 IsPasswordProtected = topic.IsPasswordProtected,
                 Title = topic.IsPasswordProtected ? "" : topic.GetLocalized(x => x.Title),
                 Body = topic.IsPasswordProtected ? "" : topic.GetLocalized(x => x.Body),
@@ -86,7 +85,7 @@ namespace SmartStore.Web.Controllers
 			var cacheKey = string.Format(ModelCacheEventConsumer.TOPIC_MODEL_KEY, systemName, _workContext.WorkingLanguage.Id, _storeContext.CurrentStore.Id);
             var cacheModel = _cacheManager.Get(cacheKey, () => PrepareTopicModel(systemName));
 
-			if (cacheModel == null || (cacheModel.RenderAsWidget && !cacheModel.IncludeInSitemap))
+			if (cacheModel == null || (cacheModel.RenderAsWidget))
 				return HttpNotFound();
 
             return View("TopicDetails", cacheModel);
@@ -105,7 +104,7 @@ namespace SmartStore.Web.Controllers
         }
 
         [ChildActionOnly]
-        public ActionResult TopicBlock(string systemName, bool bodyOnly = false)
+        public ActionResult TopicBlock(string systemName, bool bodyOnly = false, bool isLead = false)
         {
 			var cacheKey = string.Format(ModelCacheEventConsumer.TOPIC_MODEL_KEY, systemName, _workContext.WorkingLanguage.Id, _storeContext.CurrentStore.Id);
             var cacheModel = _cacheManager.Get(cacheKey, () => PrepareTopicModel(systemName));
@@ -114,7 +113,9 @@ namespace SmartStore.Web.Controllers
                 return Content("");
 
             ViewBag.BodyOnly = bodyOnly;
-            return PartialView(cacheModel);
+			ViewBag.IsLead = isLead;
+
+			return PartialView(cacheModel);
         }
 
         [ChildActionOnly]

@@ -6,7 +6,6 @@ namespace SmartStore.Core
 {
     public abstract class PagedListBase : IPageable
     {
-
         protected PagedListBase()
         {
             this.PageIndex = 0;
@@ -141,7 +140,6 @@ namespace SmartStore.Core
         {
             return Enumerable.Empty<int>().GetEnumerator();
         }
-
     }
 
     public class PagedList : PagedListBase

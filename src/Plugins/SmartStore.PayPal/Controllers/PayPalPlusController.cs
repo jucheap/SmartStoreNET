@@ -221,7 +221,7 @@ namespace SmartStore.PayPal.Controllers
 				settings.WebhookId = null;
 			}
 
-			using (Services.Settings.BeginBatch())
+			using (Services.Settings.BeginScope())
 			{
 				storeDependingSettingHelper.UpdateSettings(settings, form, storeScope, Services.Settings);
 				Services.Settings.SaveSetting(settings, x => x.UseSandbox, 0, false);
@@ -302,6 +302,11 @@ namespace SmartStore.PayPal.Controllers
 				var cancelUrl = Url.Action("CheckoutCancel", "PayPalPlus", new { area = Plugin.SystemName }, protocol);
 
 				result = PayPalService.CreatePayment(settings, session, cart, PayPalPlusProvider.SystemName, returnUrl, cancelUrl);
+				if (result == null)
+				{
+					return RedirectToAction("Confirm", "Checkout", new { area = "" });
+				}
+
 				if (result.Success && result.Json != null)
 				{
 					foreach (var link in result.Json.links)
@@ -326,21 +331,42 @@ namespace SmartStore.PayPal.Controllers
 
 			model.ApprovalUrl = session.ApprovalUrl;
 
+			if (session.SessionExpired)
+			{
+				// Customer has been redirected because the session expired.
+				session.SessionExpired = false;
+				NotifyInfo(T("Plugins.SmartStore.PayPal.SessionExpired"));
+			}
+
 			return View(model);
 		}
 
 		[HttpPost]
 		public ActionResult PatchShipping()
 		{
+			var session = HttpContext.GetPayPalSessionData();
+			if (session.AccessToken.IsEmpty() || session.PaymentId.IsEmpty())
+			{
+				// Session expired. Reload payment wall and create new payment (we need the payment id).				
+				session.SessionExpired = true;
+
+				return new JsonResult { Data = new { success = false, error = string.Empty, reload = true } };
+			}
+
 			var store = Services.StoreContext.CurrentStore;
 			var customer = Services.WorkContext.CurrentCustomer;
 			var settings = Services.Settings.LoadSetting<PayPalPlusPaymentSettings>(store.Id);
 			var cart = customer.GetCartItems(ShoppingCartType.ShoppingCart, store.Id);
-			var session = HttpContext.GetPayPalSessionData();
 
-			var apiResult = PayPalService.PatchShipping(settings, session, cart, PayPalPlusProvider.SystemName);
+			var result = PayPalService.PatchShipping(settings, session, cart, PayPalPlusProvider.SystemName);
+			var errorMessage = result.ErrorMessage;
 
-			return new JsonResult { Data = new { success = apiResult.Success, error = apiResult.ErrorMessage } };
+			if (!result.Success && result.IsValidationError)
+			{
+				errorMessage = string.Concat(T("Plugins.SmartStore.PayPal.PayPalValidationFailure"), "\r\n", errorMessage);
+			}
+
+			return new JsonResult { Data = new { success = result.Success, error = errorMessage, reload = false } };
 		}
 
 		public ActionResult CheckoutCompleted()
@@ -359,7 +385,7 @@ namespace SmartStore.PayPal.Controllers
 		public ActionResult CheckoutReturn(string systemName, string paymentId, string PayerID)
 		{
 			// Request.QueryString:
-			// paymentId: PAY-0TC88803RP094490KK4KM6AI, token: EC-5P379249AL999154U, PayerID: 5L9K773HHJLPN
+			// paymentId: PAY-0TC88803RP094490KK4KM6AI, token (not the access token): EC-5P379249AL999154U, PayerID: 5L9K773HHJLPN
 
 			var customer = Services.WorkContext.CurrentCustomer;
 			var store = Services.StoreContext.CurrentStore;

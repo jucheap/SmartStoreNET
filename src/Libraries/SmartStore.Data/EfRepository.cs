@@ -91,8 +91,8 @@ namespace SmartStore.Data
                 {
                     if (batchSize <= 0)
                     {
-                        // insert all in one step
-                        entities.Each(x => this.Entities.Add(x));
+						// insert all in one step
+						this.Entities.AddRange(entities);
 						if (this.AutoCommitEnabledInternal)
                             _context.SaveChanges();
                     }
@@ -159,6 +159,9 @@ namespace SmartStore.Data
 
 		private void SetEntityStateToModifiedIfApplicable(T entity)
 		{
+			if (entity.IsTransientRecord())
+				return;
+			
 			var entry = InternalContext.Entry(entity);
 			if (entry.State < System.Data.Entity.EntityState.Added || (this.AutoCommitEnabledInternal && !InternalContext.Configuration.AutoDetectChangesEnabled))
 			{

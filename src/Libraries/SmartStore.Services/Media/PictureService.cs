@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.Data.Entity;
 using System.Drawing;
 using System.IO;
 using System.Linq;
@@ -77,13 +78,13 @@ namespace SmartStore.Services.Media
 			switch (defaultPictureType)
 			{
 				case PictureType.Entity:
-					defaultImageFileName = _settingService.GetSettingByKey("Media.DefaultImageName", "default-image.jpg");
+					defaultImageFileName = _settingService.GetSettingByKey("Media.DefaultImageName", "default-image.png");
 					break;
 				case PictureType.Avatar:
 					defaultImageFileName = _settingService.GetSettingByKey("Media.Customer.DefaultAvatarImageName", "default-avatar.jpg");
 					break;
 				default:
-					defaultImageFileName = _settingService.GetSettingByKey("Media.DefaultImageName", "default-image.jpg");
+					defaultImageFileName = _settingService.GetSettingByKey("Media.DefaultImageName", "default-image.png");
 					break;
 			}
 
@@ -134,7 +135,7 @@ namespace SmartStore.Services.Media
 							buffer = (byte[])source;
 						}
 
-						if (buffer == null || buffer.Length == 0)
+						if (buffer == null || buffer.LongLength == 0)
 						{
 							return string.Empty;
 						}
@@ -235,17 +236,28 @@ namespace SmartStore.Services.Media
 
 		public virtual byte[] ValidatePicture(byte[] pictureBinary)
 		{
+			var size = Size.Empty;
+			return ValidatePicture(pictureBinary, out size);
+		}
+
+		public virtual byte[] ValidatePicture(byte[] pictureBinary, out Size size)
+		{
+			size = Size.Empty;
+
 			var originalSize = GetPictureSize(pictureBinary);
 			var maxSize = _mediaSettings.MaximumImageSize;
 
 			if (originalSize.IsEmpty || (originalSize.Height <= maxSize && originalSize.Width <= maxSize))
 			{
+				size = originalSize;
 				return pictureBinary;
 			}
 
 			using (var resultStream = _imageResizerService.ResizeImage(new MemoryStream(pictureBinary), maxSize, maxSize, _mediaSettings.DefaultImageQuality))
 			{
-				return resultStream.GetBuffer();
+				var buffer = resultStream.GetBuffer();
+				size = GetPictureSize(buffer);
+				return buffer;
 			}
 		}
 
@@ -313,15 +325,26 @@ namespace SmartStore.Services.Media
 		{
 			if (pictureBinary == null || pictureBinary.Length == 0)
 			{
-				return new Size();
+				return Size.Empty;
 			}
 
-			Size size;
-			var stream = new MemoryStream(pictureBinary);
+			return GetPictureSize(new MemoryStream(pictureBinary), false);
+		}
+
+		protected virtual Size GetPictureSize(Stream input, bool leaveOpen = true)
+		{
+			Guard.NotNull(input, nameof(input));
+
+			var size = Size.Empty;
+
+			if (!input.CanSeek || input.Length == 0)
+			{
+				return size;
+			}
 
 			try
 			{
-				using (var reader = new BinaryReader(stream, Encoding.UTF8, true))
+				using (var reader = new BinaryReader(input, Encoding.UTF8, true))
 				{
 					size = ImageHeader.GetDimensions(reader);
 				}
@@ -330,14 +353,22 @@ namespace SmartStore.Services.Media
 			{
 				// something went wrong with fast image access,
 				// so get original size the classic way
-				using (var b = new Bitmap(stream))
+				try
 				{
-					size = new Size(b.Width, b.Height);
+					input.Seek(0, SeekOrigin.Begin);
+					using (var b = new Bitmap(input))
+					{
+						size = new Size(b.Width, b.Height);
+					}
 				}
+				catch { }
 			}
 			finally
 			{
-				stream.Dispose();
+				if (!leaveOpen)
+				{
+					input.Dispose();
+				}	
 			}
 
 			return size;
@@ -426,9 +457,11 @@ namespace SmartStore.Services.Media
 				}
 			}
 
+			EnsurePictureSizeResolved(picture, true);
+
 			if (picture.IsNew)
 			{
-				_imageCache.DeleteCachedImages(picture);
+				_imageCache.DeleteCachedImages(picture);		
 
 				// we do not validate picture binary here to ensure that no exception ("Parameter is not valid") will be thrown
 				UpdatePicture(
@@ -441,6 +474,46 @@ namespace SmartStore.Services.Media
 			}
 
 			return string.Empty;
+		}
+
+		private void EnsurePictureSizeResolved(Picture picture, bool saveOnResolve)
+		{
+			if (picture.Width == null && picture.Height == null)
+			{
+                var mediaItem = picture.ToMedia();
+                var stream = _storageProvider.Value.OpenRead(mediaItem);
+
+                if (stream != null)
+                {
+                    try
+                    {
+                        var size = GetPictureSize(stream, true);
+                        picture.Width = size.Width;
+                        picture.Height = size.Height;
+                        picture.UpdatedOnUtc = DateTime.UtcNow;
+
+                        if (saveOnResolve)
+                        {
+							try
+							{
+								_pictureRepository.Update(picture);
+							}
+							catch (InvalidOperationException ioe)
+							{
+								// Ignore exception for pictures that already have been processed.
+								if (!ioe.IsAlreadyAttachedEntityException())
+								{
+									throw;
+								}
+							}
+						}
+                    }
+                    finally
+                    {
+                        stream.Dispose();
+                    }
+                }
+			}
 		}
 
 		public virtual string GetDefaultPictureUrl(
@@ -498,7 +571,7 @@ namespace SmartStore.Services.Media
             return pics;
         }
 
-		public virtual Multimap<int, Picture> GetPicturesByProductIds(int[] productIds, int? maxPicturesPerProduct = 1)
+		public virtual Multimap<int, Picture> GetPicturesByProductIds(int[] productIds, int? maxPicturesPerProduct = null, bool withBlobs = false)
 		{
 			Guard.NotNull(productIds, nameof(productIds));
 
@@ -509,36 +582,53 @@ namespace SmartStore.Services.Media
 
 			var map = new Multimap<int, Picture>();
 
-			if (productIds.Any())
+			if (!productIds.Any())
+				return map;
+
+			int take = maxPicturesPerProduct ?? int.MaxValue;
+
+			var query = from pp in _productPictureRepository.TableUntracked
+						where productIds.Contains(pp.ProductId)
+						group pp by pp.ProductId into g
+						select new
+						{
+							ProductId = g.Key,
+							Pictures = g.OrderBy(x => x.DisplayOrder)
+								.Take(take)
+								.Select(x => new { PictureId = x.PictureId, ProductId = x.ProductId })
+						};
+
+			var groupingResult = query.ToDictionary(x => x.ProductId, x => x.Pictures);
+
+			using (var scope = new DbContextScope(ctx: _pictureRepository.Context, forceNoTracking: null))
 			{
-				int take = maxPicturesPerProduct ?? int.MaxValue;
+				// EF doesn't support eager loading with grouped queries. We must hack a little bit.
+				var pictureIds = groupingResult.SelectMany(x => x.Value).Select(x => x.PictureId).Distinct().ToArray();
+				var pictures = GetPicturesByIds(pictureIds, withBlobs).ToDictionarySafe(x => x.Id);
 
-				var query = from pp in _productPictureRepository.TableUntracked
-							where productIds.Contains(pp.ProductId)
-							group pp by pp.ProductId into g
-							select new
-							{
-								ProductId = g.Key,
-								Pictures = g.OrderBy(x => x.DisplayOrder).Take(take).Select(x => x.Picture)
-							};
-
-				var result = query.ToList();
-
-				foreach (var ppm in result)
+				foreach (var p in groupingResult.SelectMany(x => x.Value))
 				{
-					map.AddRange(ppm.ProductId, ppm.Pictures);
+					if (pictures.ContainsKey(p.PictureId))
+					{
+						map.Add(p.ProductId, pictures[p.PictureId]);
+					}
 				}
 			}
 
 			return map;
 		}
 
-		public virtual IList<Picture> GetPicturesByIds(int[] pictureIds)
+		public virtual IList<Picture> GetPicturesByIds(int[] pictureIds, bool withBlobs = false)
 		{
 			Guard.NotNull(pictureIds, nameof(pictureIds));
 
 			var query = _pictureRepository.Table
 				.Where(x => pictureIds.Contains(x.Id));
+
+			if (withBlobs)
+			{
+				query = query.Include(x => x.MediaStorage);
+			}
 
 			return query.ToList();
 		}
@@ -565,35 +655,50 @@ namespace SmartStore.Services.Media
 			string mimeType,
 			string seoFilename,
 			bool isNew,
-			bool isTransient = true,
-			bool validateBinary = true)
-        {
-			mimeType = mimeType.EmptyNull();
-			mimeType = mimeType.Truncate(20);
-
-			seoFilename = seoFilename.Truncate(100);
-
-            if (validateBinary)
-            {
-                pictureBinary = ValidatePicture(pictureBinary);
-            }
-
-            var picture = _pictureRepository.Create();
-            picture.MimeType = mimeType;
-            picture.SeoFilename = seoFilename;
-            picture.IsNew = isNew;
+			int width,
+			int height,
+			bool isTransient = true)
+		{
+			var picture = _pictureRepository.Create();
+			picture.MimeType = mimeType.EmptyNull().Truncate(20);
+			picture.SeoFilename = seoFilename.Truncate(100);
+			picture.IsNew = isNew;
 			picture.IsTransient = isTransient;
 			picture.UpdatedOnUtc = DateTime.UtcNow;
 
-            _pictureRepository.Insert(picture);
+			if (width > 0 && height > 0)
+			{
+				picture.Width = width;
+				picture.Height = height;
+			}
 
-			// save to storage
+			_pictureRepository.Insert(picture);
+
+			// Save to storage.
 			_storageProvider.Value.Save(picture.ToMedia(), pictureBinary);
 
-			// event notification
+			// Event notification.
 			_eventPublisher.EntityInserted(picture);
 
-            return picture;
+			return picture;
+		}
+
+		public virtual Picture InsertPicture(
+			byte[] pictureBinary,
+			string mimeType,
+			string seoFilename,
+			bool isNew,
+			bool isTransient = true,
+			bool validateBinary = true)
+        {
+			var size = Size.Empty;
+
+            if (validateBinary)
+            {
+                pictureBinary = ValidatePicture(pictureBinary, out size);
+            }
+
+			return InsertPicture(pictureBinary, mimeType, seoFilename, isNew, size.Width, size.Height, isTransient);
         }
 
         public virtual void UpdatePicture(
@@ -610,9 +715,11 @@ namespace SmartStore.Services.Media
 			mimeType = mimeType.EmptyNull().Truncate(20);
 			seoFilename = seoFilename.Truncate(100);
 
+			var size = Size.Empty;
+
             if (validateBinary)
             {
-                pictureBinary = ValidatePicture(pictureBinary);
+                pictureBinary = ValidatePicture(pictureBinary, out size);
             }
 
             // delete old thumbs if a picture has been changed
@@ -625,6 +732,12 @@ namespace SmartStore.Services.Media
             picture.SeoFilename = seoFilename;
             picture.IsNew = isNew;
 			picture.UpdatedOnUtc = DateTime.UtcNow;
+
+			if (!size.IsEmpty)
+			{
+				picture.Width = size.Width;
+				picture.Height = size.Height;
+			}
 
             _pictureRepository.Update(picture);
 

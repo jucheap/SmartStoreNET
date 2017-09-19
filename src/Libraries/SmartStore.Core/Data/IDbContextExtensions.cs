@@ -10,7 +10,6 @@ namespace SmartStore
 {
 	public static class IDbContextExtensions
 	{
-
 		/// <summary>
 		/// Detaches all entities from the current object context
 		/// </summary>
@@ -140,7 +139,8 @@ namespace SmartStore
 			this IDbContext ctx,
 			TEntity entity,
 			Expression<Func<TEntity, TProperty>> navigationProperty,
-			bool force = false)
+			bool force = false,
+			Func<IQueryable<TProperty>, IQueryable<TProperty>> queryAction = null)
 			where TEntity : BaseEntity
 			where TProperty : BaseEntity
 		{
@@ -163,7 +163,23 @@ namespace SmartStore
 
 			if (!reference.IsLoaded)
 			{
-				reference.Load();
+				if (queryAction != null || ctx.ForceNoTracking)
+				{
+					var query = !ctx.ForceNoTracking
+						? reference.Query()
+						: reference.Query().AsNoTracking();
+
+					var myQuery = queryAction != null
+						? queryAction(query)
+						: query;
+
+					reference.CurrentValue = myQuery.FirstOrDefault();
+				}
+				else
+				{
+					reference.Load();
+				}		
+
 				reference.IsLoaded = true;
 			}
 		}
